@@ -12,7 +12,7 @@ Run it
 podman run \ 
 -e=HELPERPOD_CONFIG_YAML='aGVscGVycG9kOgogIGlzOiBjb29sCmhlbHBlcm5vZGU6CiAgdXNlaGVscDoKICAtIG5hbWU6IHJvYmVydAogICAgbGFzdDogc2FuZG92b2wK' \
 --name=test-lb -id test-lb
-```shell
+```
 
 Check the yaml
 
