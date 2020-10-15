@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi8/ubi:latest
 
-RUN dnf -y install haproxy gettext
+RUN dnf -y install haproxy gettext jq python38 python38-pyyaml
 
 COPY scripts/startup.sh /usr/local/bin/
 

@@ -8,6 +8,10 @@
 echo ${HELPERPOD_CONFIG_YAML} | base64 -d > /usr/local/src/helperpod.yaml
 
 #
+## Convert the YAML to JSON because it's easier to work with
+python3 -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout, indent=4)' < /usr/local/src/helperpod.yaml > /usr/local/src/helperpod.json
+
+#
 ## Start HAProxy
 haproxyConfig=/etc/haproxy/haproxy.cfg 
 haproxyPidFile=/run/haproxy.pid
