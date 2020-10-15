@@ -12,12 +12,25 @@ echo ${HELPERPOD_CONFIG_YAML} | base64 -d > /usr/local/src/helperpod.yaml
 python3 -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout, indent=4)' < /usr/local/src/helperpod.yaml > /usr/local/src/helperpod.json
 
 #
-## Start HAProxy
+## TBD:
+### * Create a Template haproxy.cfg and add it in the Containerfile
+### * Using the YAML/JSON provided, create an haproxy.cfg file "on the fly"
+
+#
+## Set HAProxy variables
 haproxyConfig=/etc/haproxy/haproxy.cfg 
 haproxyPidFile=/run/haproxy.pid
-## This is how you test for a valid file...cloud be useful later
-### /usr/sbin/haproxy -f ${haproxyConfig} -c -q
-rm -f ${haproxyPidFile}
-/usr/sbin/haproxy -Ws -f ${haproxyConfig} -p ${haproxyPidFile}
+
+#
+## Test for the validity of the config file. Run the HAProxy process if it passes
+if ! /usr/sbin/haproxy -f ${haproxyConfig} -c -q ; then
+	echo "============================="
+	echo "FATAL: Invalid HAProxy config"
+	echo "============================="
+	exit 254
+else
+	rm -f ${haproxyPidFile}
+	/usr/sbin/haproxy -Ws -f ${haproxyConfig} -p ${haproxyPidFile}
+fi
 ##
 ##
