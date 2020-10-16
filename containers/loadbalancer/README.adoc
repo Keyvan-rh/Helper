@@ -20,10 +20,22 @@ Check the yaml
 podman exec -it test-lb cat /usr/local/src/helperpod.yaml
 ```
 
+Check the config
+
+```shell
+podman exec -it test-lb cat /etc/haproxy/haproxy.cfg
+```
+
 You can see the lb status
 
 > Make sure port 9000 is open using `firewall-cmd`
 
 ```shell
 firefox localhost:9000
+```
+
+Have a look around
+
+```shell
+podman exec -it test-lb bash
 ```
