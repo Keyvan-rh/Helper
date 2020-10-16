@@ -8,13 +8,8 @@
 echo ${HELPERPOD_CONFIG_YAML} | base64 -d > /usr/local/src/helperpod.yaml
 
 #
-## Convert the YAML to JSON because it's easier to work with
-python3 -c 'import sys, yaml, json; json.dump(yaml.safe_load(sys.stdin), sys.stdout, indent=4)' < /usr/local/src/helperpod.yaml > /usr/local/src/helperpod.json
-
-#
-## TBD:
-### * Create a Template haproxy.cfg and add it in the Containerfile
-### * Using the YAML/JSON provided, create an haproxy.cfg file "on the fly"
+## Create haproxy.cfg based on the template and yaml passed in.
+ansible  localhost --connection=local -e @/usr/local/src/helperpod.yaml -m template -a "src=/usr/local/src/haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg" > /var/log/helperpod_ansible_run.log 2>&1
 
 #
 ## Set HAProxy variables
@@ -29,6 +24,9 @@ if ! /usr/sbin/haproxy -f ${haproxyConfig} -c -q ; then
 	echo "============================="
 	exit 254
 else
+	echo "==========================="
+	echo "Starting HAproxy service..."
+	echo "==========================="
 	rm -f ${haproxyPidFile}
 	/usr/sbin/haproxy -Ws -f ${haproxyConfig} -p ${haproxyPidFile}
 fi

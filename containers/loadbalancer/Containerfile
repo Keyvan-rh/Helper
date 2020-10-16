@@ -1,7 +1,12 @@
 FROM registry.access.redhat.com/ubi8/ubi:latest
 
-RUN dnf -y install haproxy gettext jq python38 python38-pyyaml
+RUN dnf -y install haproxy jq python3-pip && \
+    pip3 install ansible
+
+COPY files/haproxy.cfg.j2 /usr/local/src/
 
 COPY scripts/startup.sh /usr/local/bin/
+
+EXPOSE 9000/tcp 9000/udp 6443/tcp 6443/udp 22623/tcp 22623/udp 80/tcp 80/udp 443/tcp 443/udp
 
 ENTRYPOINT ["/usr/local/bin/startup.sh"]
