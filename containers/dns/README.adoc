@@ -39,7 +39,7 @@ You can check the entries
 > Make sure port 53/udp is open using `firewall-cmd`
 
 ```shell
-dig @localhost master0.ocp4.example.com
+dig @localhost master0.ocp4.example.com +short
 ```
 
 Have a look around
@@ -50,7 +50,7 @@ podman exec -it test-dns bash
 
 ## Troubleshooting
 
-You may need to run  this if you're testing on Fedora Desktop (other services that may listen on 53)
+You may need to run this if you're testing on Fedora Desktop (other services that may listen on 53)
 
 ```shell
 systemctl stop dnsmasq
