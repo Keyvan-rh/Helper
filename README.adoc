@@ -11,6 +11,7 @@ This is the fork where work is being done on refactoring the HelperNode to use o
   * No dependecies between services where possible (exceptions only when absolutley needed)
   * The user can use all or just a subset of services
   * oc/openshift-install/helm utilites should be run in a container
+* All logic for each containerized service will be in the `startup.sh` file
 * Client utility (`helpernodectl`) should be used to interact with services/utilites
 * No dependency to local storage
   * Containers should NOT rely on storage on the Host system (i.e. **no** mounting/binding like `-v /hostdir:/containerdir`)
@@ -40,6 +41,6 @@ It's just a codename. Originally, the plan was to run the helpernode with `podma
 
 Current Active Maintainers
 
-- Christian Hernandez ([christianh814](https://github.com/christianh814))
-- Rober Sandovol ([robertsandoval](https://github.com/robertsandoval))
+- Christian Hernandez (https://github.com/christianh814)
+- Rober Sandovol (https://github.com/robertsandoval)
 
