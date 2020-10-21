@@ -6,12 +6,16 @@ Build it
 podman build -t test-lb .
 ```
 
+Get sample `vars.yaml` file.
+
+```shell
+wget https://raw.githubusercontent.com/RedHatOfficial/ocp4-helpernode/master/docs/examples/vars.yaml -O /tmp/vars.yaml
+```
+
 Run it
 
 ```shell
-podman run -id \
--e=HELPERPOD_CONFIG_YAML='LS0tCmRpc2s6IHZkYQpoZWxwZXI6CiAgbmFtZTogImhlbHBlciIKICBpcGFkZHI6ICIxOTIuMTY4LjcuNzciCmRuczoKICBkb21haW46ICJleGFtcGxlLmNvbSIKICBjbHVzdGVyaWQ6ICJvY3A0IgogIGZvcndhcmRlcjE6ICI4LjguOC44IgogIGZvcndhcmRlcjI6ICI4LjguNC40IgpkaGNwOgogIHJvdXRlcjogIjE5Mi4xNjguNy4xIgogIGJjYXN0OiAiMTkyLjE2OC43LjI1NSIKICBuZXRtYXNrOiAiMjU1LjI1NS4yNTUuMCIKICBwb29sc3RhcnQ6ICIxOTIuMTY4LjcuMTAiCiAgcG9vbGVuZDogIjE5Mi4xNjguNy4zMCIKICBpcGlkOiAiMTkyLjE2OC43LjAiCiAgbmV0bWFza2lkOiAiMjU1LjI1NS4yNTUuMCIKYm9vdHN0cmFwOgogIG5hbWU6ICJib290c3RyYXAiCiAgaXBhZGRyOiAiMTkyLjE2OC43LjIwIgogIG1hY2FkZHI6ICI1Mjo1NDowMDo2MDo3Mjo2NyIKbWFzdGVyczoKICAtIG5hbWU6ICJtYXN0ZXIwIgogICAgaXBhZGRyOiAiMTkyLjE2OC43LjIxIgogICAgbWFjYWRkcjogIjUyOjU0OjAwOmU3OjlkOjY3IgogIC0gbmFtZTogIm1hc3RlcjEiCiAgICBpcGFkZHI6ICIxOTIuMTY4LjcuMjIiCiAgICBtYWNhZGRyOiAiNTI6NTQ6MDA6ODA6MTY6MjMiCiAgLSBuYW1lOiAibWFzdGVyMiIKICAgIGlwYWRkcjogIjE5Mi4xNjguNy4yMyIKICAgIG1hY2FkZHI6ICI1Mjo1NDowMDpkNToxYzozOSIKd29ya2VyczoKICAtIG5hbWU6ICJ3b3JrZXIwIgogICAgaXBhZGRyOiAiMTkyLjE2OC43LjExIgogICAgbWFjYWRkcjogIjUyOjU0OjAwOmY0OjI2OmExIgogIC0gbmFtZTogIndvcmtlcjEiCiAgICBpcGFkZHI6ICIxOTIuMTY4LjcuMTIiCiAgICBtYWNhZGRyOiAiNTI6NTQ6MDA6ODI6OTA6MDAiCiAgLSBuYW1lOiAid29ya2VyMiIKICAgIGlwYWRkcjogIjE5Mi4xNjguNy4xMyIKICAgIG1hY2FkZHI6ICI1Mjo1NDowMDo4ZToxMDozNCIKb3RoZXI6CiAgLSBuYW1lOiAibm9uLWNsdXN0ZXItdm0iCiAgICBpcGFkZHI6ICIxOTIuMTY4LjcuMzEiCiAgICBtYWNhZGRyOiAiNTI6NTQ6MDA6ZjQ6MmU6MmUiCg==' \
--p 9000:9000 --name test-lb test-lb
+podman run -id -e=HELPERPOD_CONFIG_YAML=$(base64 -w0 < /tmp/vars.yaml) -p 9000:9000 --name test-lb test-lb
 ```
 
 Check the yaml
@@ -40,4 +44,8 @@ Have a look around
 podman exec -it test-lb bash
 ```
 
+Just notes for me...ignore...
+
+```
 echo ${OCPVERSION%.*}
+```
