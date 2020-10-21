@@ -1,20 +1,26 @@
 #!/bin/bash
 #
+## This is the startup script for the LoadBalancer container
+
+#
+## Variables for HAProxy
+haproxyConfig=/etc/haproxy/haproxy.cfg
+haproxyPidFile=/run/haproxy.pid
+haproxyConfigTemplate=/usr/local/src/haproxy.cfg.j2
+helperPodYaml=/usr/local/src/helperpod.yaml
+ansibleLog=/var/log/helperpod_ansible_run.log
+
+#
 ## Make sure the HELPERPOD_CONFIG_YAML env var has size
 [[ ${#HELPERPOD_CONFIG_YAML} -eq 0 ]] && echo "FATAL: HELPERPOD_CONFIG_YAML env var not set!!!" && exit 254
 
 #
-## For now, let's test just writing the file out
-echo ${HELPERPOD_CONFIG_YAML} | base64 -d > /usr/local/src/helperpod.yaml
+## Take the HELPERPOD_CONFIG_YAML env variable and write out the YAML file.
+echo ${HELPERPOD_CONFIG_YAML} | base64 -d > ${helperPodYaml}
 
 #
 ## Create haproxy.cfg based on the template and yaml passed in.
-ansible  localhost --connection=local -e @/usr/local/src/helperpod.yaml -m template -a "src=/usr/local/src/haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg" > /var/log/helperpod_ansible_run.log 2>&1
-
-#
-## Set HAProxy variables
-haproxyConfig=/etc/haproxy/haproxy.cfg 
-haproxyPidFile=/run/haproxy.pid
+ansible localhost -c local -e @${helperPodYaml} -m template -a "src=${haproxyConfigTemplate} dest=${haproxyConfig}" > ${ansibleLog} 2>&1
 
 #
 ## Test for the validity of the config file. Run the HAProxy process if it passes

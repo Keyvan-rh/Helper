@@ -1,5 +1,9 @@
 FROM registry.access.redhat.com/ubi8/ubi:latest
 
+ENV OCPVERSION="4.5.15"
+
+ENV HELPERPODVERSION="2.4.5.0"
+
 RUN dnf -y install haproxy jq python3-pip && \
     pip3 install ansible
 
