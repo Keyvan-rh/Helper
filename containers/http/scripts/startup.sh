@@ -19,7 +19,7 @@ echo ${HELPERPOD_CONFIG_YAML} | base64 -d > ${helperPodYaml}
 
 #
 ## Download OpenShift Artifacts
-wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCPVERSION%.*}/${OCPVERSION}/rhcos-${OCPVERSION}-x86_64-metal.x86_64.raw.gz -O /var/www/html/install/bios.raw.gz
+wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCPVERSION%.*}/${OCPRHCOSVERSION}/rhcos-${OCPRHCOSVERSION}-x86_64-metal.x86_64.raw.gz -O /var/www/html/install/bios.raw.gz
 chmod 775 /var/www/html/install/bios.raw.gz
 
 #
