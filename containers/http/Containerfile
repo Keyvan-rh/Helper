@@ -1,0 +1,19 @@
+FROM registry.access.redhat.com/ubi8/ubi:latest
+
+ENV OCPVERSION="4.5.15"
+
+ENV HELPERPODVERSION="2.4.5.0"
+
+ENV HELPERPOD_HTTP_PORT="8080"
+
+RUN dnf -y install httpd jq wget python3-pip && \
+    pip3 install ansible && \
+    mkdir -m 775 -p /var/www/html/{install,ignition}
+
+COPY files/httpd.conf.j2 /usr/local/src/
+
+COPY scripts/startup.sh /usr/local/bin/
+
+EXPOSE 8080/tcp 8080/udp
+
+ENTRYPOINT ["/usr/local/bin/startup.sh"]
