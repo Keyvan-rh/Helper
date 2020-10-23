@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi8/ubi:latest
 
-ENV OCPVERSION="4.5.15"
+ENV OCPVERSION="4.5.2"
 
 ENV HELPERPODVERSION="2.4.5.0"
 
