@@ -3,7 +3,7 @@
 Build it
 
 ```shell
-podman build -t test-lb .
+podman build -t test-http .
 ```
 
 Get sample `vars.yaml` file.
@@ -21,31 +21,31 @@ podman run -id -e=HELPERPOD_CONFIG_YAML=$(base64 -w0 < /tmp/vars.yaml) \
 -p 22623:22623/tcp -p 22623:22623/udp \
 -p 80:80/tcp -p 80:80/udp \
 -p 443:443/tcp -p 443:443/udp \
---name test-lb test-lb
+--name test-http test-http
 ```
 
 Check the yaml
 
 ```shell
-podman exec -it test-lb cat /usr/local/src/helperpod.yaml
+podman exec -it test-http cat /usr/local/src/helperpod.yaml
 ```
 
 Check the config
 
 ```shell
-podman exec -it test-lb cat /etc/haproxy/haproxy.cfg
+podman exec -it test-http cat /etc/httpd/conf/httpd.conf
 ```
 
-You can see the lb status
+You can see the http status
 
-> Make sure port 9000 is open using `firewall-cmd`
+> Make sure port 8080 is open using `firewall-cmd`
 
 ```shell
-firefox localhost:9000
+firefox localhost:8080/install
 ```
 
 Have a look around
 
 ```shell
-podman exec -it test-lb bash
+podman exec -it test-http bash
 ```
