@@ -1,5 +1,7 @@
 # How to test this image
 
+> CURRENTLY BROKEN - this is a wip
+
 Build it
 
 ```shell
