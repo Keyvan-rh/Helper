@@ -9,7 +9,7 @@ podman build -t test-dhcp .
 Get sample `vars.yaml` file.
 
 ```shell
-wget https://raw.githubusercontent.com/RedHatOfficial/ocp4-helpernode/master/docs/examples/vars.yaml -O /tmp/vars.yaml
+wget https://raw.githubusercontent.com/RedHatWorkshops/ocp4-helpernode/helperpod/vars.yaml -O /tmp/vars.yaml
 ```
 
 Run it
