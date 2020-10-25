@@ -41,9 +41,10 @@ chmod 0555 ${rhcosDir}/{initramfs.img,kernel}
 
 #
 ## Create pxe/tftp files based on the template and yaml passed in.
-ansible localhost -c local -e @${helperPodYaml} -m template -a 'src=${bootstrapPxeTemplate} dest="${pxeConfig}/01-{{ bootstrap.macaddr | lower | regex_replace (':', '-') }}" mode=0555' > ${ansibleLog} 2>&1
-ansible localhost -c local -e @${helperPodYaml} -m template -a 'src=${masterPxeTemplate} dest="${pxeConfig}/01-{{ item.macaddr | regex_replace (':', '-')}}" mode=0555 with_items="{{ masters | lower }}"' > ${ansibleLog} 2>&1
-ansible localhost -c local -e @${helperPodYaml} -m template -a 'src=${workerPxeTemplate} dest="${pxeConfig}/01-{{ item.macaddr | regex_replace (':', '-')}}" mode=0555 with_items="{{ workers | lower }}" when:"(workers is defined) and (workers | length > 0)"' > ${ansibleLog} 2>&1
+rm -f  ${ansibleLog}
+ansible localhost -c local -e @${helperPodYaml} -m template -a 'src=${bootstrapPxeTemplate} dest="${pxeConfig}/01-{{ bootstrap.macaddr | lower | regex_replace (':', '-') }}" mode=0555' >> ${ansibleLog} 2>&1
+ansible localhost -c local -e @${helperPodYaml} -m template -a 'src=${masterPxeTemplate} dest="${pxeConfig}/01-{{ item.macaddr | regex_replace (':', '-')}}" mode=0555 with_items="{{ masters | lower }}"' >> ${ansibleLog} 2>&1
+ansible localhost -c local -e @${helperPodYaml} -m template -a 'src=${workerPxeTemplate} dest="${pxeConfig}/01-{{ item.macaddr | regex_replace (':', '-')}}" mode=0555 with_items="{{ workers | lower }}" when:"(workers is defined) and (workers | length > 0)"' >> ${ansibleLog} 2>&1
 
 #
 ## PXE is a "best effort" service that is kind of "old". So putting this here as a placeholder until someone has time to write a "checker"
@@ -56,7 +57,7 @@ else
 	echo "============================"
 	echo "Starting PXE/TFTP service..."
 	echo "============================"
-	/usr/sbin/in.tftpd -L --secure ${tftpBootDir}
+	/usr/sbin/in.tftpd -L --verbosity 4  --secure ${tftpBootDir}
 fi
 ##
 ##

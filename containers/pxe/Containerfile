@@ -16,6 +16,6 @@ COPY files/pxe-worker.j2 /usr/local/src/
 
 COPY scripts/startup.sh /usr/local/bin/
 
-EXPOSE 69/udp
+EXPOSE 69/udp 69/tcp
 
 ENTRYPOINT ["/usr/local/bin/startup.sh"]
