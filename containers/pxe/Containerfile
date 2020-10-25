@@ -9,7 +9,6 @@ ENV HELPERPODVERSION="2.4.5.0"
 RUN dnf -y install tftp-server syslinux wget jq python3-pip && \
     pip3 install ansible yq
 
-COPY files/default.j2 /usr/local/src/
 COPY files/pxe-bootstrap.j2 /usr/local/src/
 COPY files/pxe-master.j2 /usr/local/src/
 COPY files/pxe-worker.j2 /usr/local/src/

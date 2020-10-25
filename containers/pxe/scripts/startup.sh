@@ -41,15 +41,12 @@ chmod 0555 ${rhcosDir}/{initramfs.img,kernel}
 
 #
 ## Create pxe/tftp files based on the template and yaml passed in.
-
-#
-## First create the masters PXE config
-##masters=($(yq -r '.masters[] | @base64'  < ${helperPodYaml}))
-##for master in ${!masters[@]}
-##do
-##	yq -r .masters[${master}].name < /tmp/vars.yaml
-##done
 ansible localhost -c local -e @${helperPodYaml} -m template -a "src=${bootstrapPxeTemplate} dest=${pxeConfig}/01-$(yq -r .bootstrap.macaddr ${helperPodYaml} | tr [:upper:] [:lower:] | sed 's~:~-~g') mode=0555" >> ${ansibleLog} 2>&1
+masters=($(yq -r '.masters[] | @base64'  < ${helperPodYaml}))
+for master in ${!masters[@]}
+do
+	yq -r .masters[${master}].macaddr < ${helperPodYaml}
+done
 
 #
 ## PXE is a "best effort" service that is kind of "old". So putting this here as a placeholder until someone has time to write a "checker"
