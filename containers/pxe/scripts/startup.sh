@@ -43,13 +43,13 @@ chmod 0555 ${rhcosDir}/{initramfs.img,kernel}
 ## Create pxe/tftp files based on the template and yaml passed in.
 
 # First create the bootstrap
-ansible localhost -c local -e @${helperPodYaml} -e disk=$(yq -r .bootstrap.disk | tr [:upper:] [:lower:] ${helperPodYaml}) -m template -a "src=${bootstrapPxeTemplate} dest=${pxeConfig}/01-$(yq -r .bootstrap.macaddr ${helperPodYaml} | tr [:upper:] [:lower:] | sed 's~:~-~g') mode=0555" >> ${ansibleLog} 2>&1
+ansible localhost -c local -e @${helperPodYaml} -e disk=$(yq -r .bootstrap.disk ${helperPodYaml} | tr [:upper:] [:lower:]) -m template -a "src=${bootstrapPxeTemplate} dest=${pxeConfig}/01-$(yq -r .bootstrap.macaddr ${helperPodYaml} | tr [:upper:] [:lower:] | sed 's~:~-~g') mode=0555" >> ${ansibleLog} 2>&1
 
 # For the masters, we need to loop
 masters=($(yq -r '.masters[] | @base64'  < ${helperPodYaml}))
 for master in ${!masters[@]}
 do
-	ansible localhost -c local -e @${helperPodYaml} -e disk=$(yq -r .masters[${master}].disk < ${helperPodYaml} | tr [:upper:] [:lower:]) -m template -a "src=${masterPxeTemplate} dest=${pxeConfig}/01-$(yq -r .masters[${master}].macaddr < ${helperPodYaml} | tr [:upper:] [:lower:] | sed 's~:~-~g') mode=0555" >> ${ansibleLog} 2>&1
+	ansible localhost -c local -e @${helperPodYaml} -e disk=$(yq -r .masters[${master}].disk ${helperPodYaml} | tr [:upper:] [:lower:]) -m template -a "src=${masterPxeTemplate} dest=${pxeConfig}/01-$(yq -r .masters[${master}].macaddr ${helperPodYaml} | tr [:upper:] [:lower:] | sed 's~:~-~g') mode=0555" >> ${ansibleLog} 2>&1
 done
 
 # Only loop through the workers if there is any (i.e. "compact cluster" mode)
@@ -57,7 +57,7 @@ if yq -r .workers ${helperPodYaml} > /dev/null 2>&1; then
 	workers=($(yq -r '.workers[] | @base64'  < ${helperPodYaml}))
 	for worker in ${!workers[@]}
 	do
-		ansible localhost -c local -e @${helperPodYaml} -e disk=$(yq -r .workers[${worker}].disk < ${helperPodYaml} | tr [:upper:] [:lower:]) -m template -a "src=${masterPxeTemplate} dest=${pxeConfig}/01-$(yq -r .workers[${worker}].macaddr < ${helperPodYaml} | tr [:upper:] [:lower:] | sed 's~:~-~g') mode=0555" >> ${ansibleLog} 2>&1
+		ansible localhost -c local -e @${helperPodYaml} -e disk=$(yq -r .workers[${worker}].disk ${helperPodYaml} | tr [:upper:] [:lower:]) -m template -a "src=${masterPxeTemplate} dest=${pxeConfig}/01-$(yq -r .workers[${worker}].macaddr ${helperPodYaml} | tr [:upper:] [:lower:] | sed 's~:~-~g') mode=0555" >> ${ansibleLog} 2>&1
 	done
 fi
 
