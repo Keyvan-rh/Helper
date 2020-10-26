@@ -57,7 +57,7 @@ if yq -r .workers ${helperPodYaml} > /dev/null 2>&1; then
 	workers=($(yq -r '.workers[] | @base64'  < ${helperPodYaml}))
 	for worker in ${!workers[@]}
 	do
-		ansible localhost -c local -e @${helperPodYaml} -e disk=$(yq -r .workers[${worker}].disk ${helperPodYaml} | tr [:upper:] [:lower:]) -m template -a "src=${masterPxeTemplate} dest=${pxeConfig}/01-$(yq -r .workers[${worker}].macaddr ${helperPodYaml} | tr [:upper:] [:lower:] | sed 's~:~-~g') mode=0555" >> ${ansibleLog} 2>&1
+		ansible localhost -c local -e @${helperPodYaml} -e disk=$(yq -r .workers[${worker}].disk ${helperPodYaml} | tr [:upper:] [:lower:]) -m template -a "src=${workerPxeTemplate} dest=${pxeConfig}/01-$(yq -r .workers[${worker}].macaddr ${helperPodYaml} | tr [:upper:] [:lower:] | sed 's~:~-~g') mode=0555" >> ${ansibleLog} 2>&1
 	done
 fi
 
