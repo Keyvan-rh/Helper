@@ -19,8 +19,8 @@ echo ${HELPERPOD_CONFIG_YAML} | base64 -d > ${helperPodYaml}
 
 #
 ## Download OpenShift Artifacts
-wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCPVERSION%.*}/${OCPRHCOSVERSION}/rhcos-${OCPRHCOSVERSION}-x86_64-metal.x86_64.raw.gz -O /var/www/html/install/bios.raw.gz
-chmod 775 /var/www/html/install/bios.raw.gz
+wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/4.6.1/rhcos-${OCPRHCOSVERSION}-x86_64-live-rootfs.x86_64.img -O /var/www/html/install/rootfs.img
+chmod 0555 /var/www/html/install/rootfs.img
 
 #
 ## Create httpd.conf based on the template and yaml passed in.
