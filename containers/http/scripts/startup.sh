@@ -20,9 +20,9 @@ echo ${HELPERPOD_CONFIG_YAML} | base64 -d > ${helperPodYaml}
 #
 ## Download OpenShift Artifacts
 wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/4.6.1/rhcos-${OCPRHCOSVERSION}-x86_64-live-rootfs.x86_64.img -O /var/www/html/install/rootfs.img
-wget https://get.helm.sh/helm-v${HELMVERSION}-linux-arm64.tar.gz -O /var/www/html/install/artifacts/helm.tar.gz
-wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCPVERSION}/openshift-client-linux-${OCPVERSION}.tar.gz -O /var/www/html/install/artifacts/openshift-client-linux.tar.gz
-wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCPVERSION}/openshift-install-linux-${OCPVERSION}.tar.gz -O /var/www/html/install/artifacts/openshift-install-linux.tar.gz
+wget https://get.helm.sh/helm-v${HELMVERSION}-linux-amd64.tar.gz -O /var/www/html/artifacts/helm.tar.gz
+wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCPVERSION}/openshift-client-linux-${OCPVERSION}.tar.gz -O /var/www/html/artifacts/openshift-client-linux.tar.gz
+wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCPVERSION}/openshift-install-linux-${OCPVERSION}.tar.gz -O /var/www/html/artifacts/openshift-install-linux.tar.gz
 chmod 0555 /var/www/html/install/rootfs.img
 chmod 0775 /var/www/html/artifacts/*
 
