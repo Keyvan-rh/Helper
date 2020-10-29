@@ -6,7 +6,7 @@ This is the fork where work is being done on refactoring the HelperNode to use o
   * The `vars.yaml` (which will be renamed to `helpernode.yaml`) will be the "source of truth"
   * ALL services will be based on what is in this file.
   * Changes are to be made to the manifest file directly if a change is needed.
-* All services will be independed of each other
+* All services will be independet of each other
   * All services will be self contained
   * No dependecies between services where possible (exceptions only when absolutley needed)
   * The user can use all or just a subset of services
