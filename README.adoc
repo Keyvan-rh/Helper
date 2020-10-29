@@ -6,11 +6,11 @@ This is the fork where work is being done on refactoring the HelperNode to use o
   * The `vars.yaml` (which will be renamed to `helpernode.yaml`) will be the "source of truth"
   * ALL services will be based on what is in this file.
   * Changes are to be made to the manifest file directly if a change is needed.
-* All services will be independed of each other
+* All services will be independet of each other
   * All services will be self contained
   * No dependecies between services where possible (exceptions only when absolutley needed)
   * The user can use all or just a subset of services
-  * oc/openshift-install/helm utilites should be run in a container
+  * oc/openshift-install/helm utilites are stored in a container but can be pulled into the node
 * All logic for each containerized service will be in the `startup.sh` file
 * Client utility (`helpernodectl`) should be used to interact with services/utilites
 * No dependency to local storage
