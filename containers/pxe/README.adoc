@@ -16,7 +16,10 @@ Run it
 
 ```shell
 podman run -id -e=HELPERPOD_CONFIG_YAML=$(base64 -w0 < /tmp/vars.yaml) \
--p 69:69/udp -p 69:69/tcp --net host --name test-pxe test-pxe
+-p 69:69/udp -p 69:69/tcp \
+-p 65500-65515:65500-65515/udp \
+-p 4011:4011/udp -p 111:111/udp \
+--net host --name test-pxe test-pxe
 ```
 
 Check the yaml
