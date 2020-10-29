@@ -42,5 +42,5 @@ It's just a codename. Originally, the plan was to run the helpernode with `podma
 Current Active Maintainers
 
 - Christian Hernandez (https://github.com/christianh814)
-- Rober Sandovol (https://github.com/robertsandoval)
+- Robert Sandoval (https://github.com/robertsandoval)
 
