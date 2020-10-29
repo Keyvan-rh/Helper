@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi:latest
+FROM centos:centos8
 
 ENV OCPVERSION="4.6.1"
 
