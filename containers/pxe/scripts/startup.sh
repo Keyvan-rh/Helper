@@ -35,7 +35,7 @@ cp -a /usr/share/syslinux/* ${tftpBootDir}/
 
 #
 ## Downloading OCP4 installer initramfs and kernel files. Setting the proper permissions to 0555
-wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCPVERSION%.*}/${OCPRHCOSVERSION}/rhcos-${OCPRHCOSVERSION}-x86_64-live-installer-initramfs.x86_64.img -O ${rhcosDir}/initramfs.img
+wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCPVERSION%.*}/${OCPRHCOSVERSION}/rhcos-${OCPRHCOSVERSION}-x86_64-live-initramfs.x86_64.img -O ${rhcosDir}/initramfs.img
 wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCPVERSION%.*}/${OCPRHCOSVERSION}/rhcos-${OCPRHCOSVERSION}-x86_64-live-kernel-x86_64 -O ${rhcosDir}/kernel
 chmod 0555 ${rhcosDir}/{initramfs.img,kernel}
 
