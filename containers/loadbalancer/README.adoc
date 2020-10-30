@@ -15,13 +15,7 @@ wget https://raw.githubusercontent.com/RedHatWorkshops/ocp4-helpernode/helperpod
 Run it
 
 ```shell
-podman run -id -e=HELPERPOD_CONFIG_YAML=$(base64 -w0 < /tmp/vars.yaml) \
--p 9000:9000/tcp -p 9000:9000/udp \
--p 6443:6443/tcp -p 6443:6443/udp \
--p 22623:22623/tcp -p 22623:22623/udp \
--p 80:80/tcp -p 80:80/udp \
--p 443:443/tcp -p 443:443/udp \
---name test-lb test-lb
+podman run -id -e=HELPERPOD_CONFIG_YAML=$(base64 -w0 < /tmp/vars.yaml) --net host --name=test-lb test-lb
 ```
 
 Check the yaml
