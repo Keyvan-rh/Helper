@@ -2,7 +2,7 @@
 helper:
   name: "helper"
   ipaddr: "192.168.7.77"
-  networkifacename: "enp1s0"
+  networkifacename: "ens3"
 dns:
   domain: "example.com"
   clusterid: "ocp4"
