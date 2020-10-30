@@ -22,24 +22,6 @@ ansibleLog=/var/log/helperpod_ansible_run.log
 echo ${HELPERPOD_CONFIG_YAML} | base64 -d > ${helperPodYaml}
 
 #
-## Create PXE dir in the tftp dir
-mkdir -m 0755 -p ${pxeConfig}
-
-#
-## Create a directory for RHCOS artifacts
-mkdir -m 0755 -p ${rhcosDir}
-
-#
-## Copy over files needed for TFTP
-cp -a /usr/share/syslinux/* ${tftpBootDir}/
-
-#
-## Downloading OCP4 installer initramfs and kernel files. Setting the proper permissions to 0555
-wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCPVERSION%.*}/${OCPRHCOSVERSION}/rhcos-${OCPRHCOSVERSION}-x86_64-live-initramfs.x86_64.img -O ${rhcosDir}/initramfs.img
-wget https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCPVERSION%.*}/${OCPRHCOSVERSION}/rhcos-${OCPRHCOSVERSION}-x86_64-live-kernel-x86_64 -O ${rhcosDir}/kernel
-chmod 0555 ${rhcosDir}/{initramfs.img,kernel}
-
-#
 ## Create pxe/tftp files based on the template and yaml passed in.
 
 # First create the bootstrap

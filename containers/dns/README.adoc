@@ -17,7 +17,7 @@ Run it
 
 
 ```shell
-podman run -id -e=HELPERPOD_CONFIG_YAML=$(base64 -w0 < /tmp/vars.yaml) -p 53:53/udp --name test-dns test-dns
+podman run -id -e=HELPERPOD_CONFIG_YAML=$(base64 -w0 < /tmp/vars.yaml) --net host --name=test-dns test-dns
 ```
 
 Check the yaml
