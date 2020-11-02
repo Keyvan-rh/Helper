@@ -19,9 +19,24 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os/exec"
+	"github.com/robertsandoval/ocp4-helpernode/utils"
 )
 
 var containerRuntime string
+var dhcp string = "quay.io/helpernode/dhcp"
+var dns string = "quay.io/helpernode/dns"
+var http string = "quay.io/helpernode/http"
+var loadbalancer string = "quay.io/helpernode/loadbalancer"
+var pxe string = "quay.io/helpernode/pxe"
+
+
+// A map value containing some key-value pairs.
+var images=  map[string]string{
+	"dns": "quay.io/helpernode/dns",
+	"dhcp": "quay.io/helpernode/dhcp",
+	"http": "quay.io/helpernode/http",
+	"loadbalancer": "quay.io/helpernode/loadbalancer",
+	"pxe": "quay.io/helpernode/pxe"}
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
@@ -72,9 +87,10 @@ func verifyContainerRuntime() {
 
 
 func pullImages(){
-	cmd, err := exec.Command(containerRuntime, "pull", "quay.io/redhatworkshops/helpernode-http:latest").Output()
-	if err != nil {
-		fmt.Println(cmd)
+	for k, v := range images {
+//		fmt.Printf("key[%s] value[%s]\n", k, v)
+		fmt.Println("Pulling : " + k)
+		utils.PullImage(v, "latest")
 	}
 }
  
