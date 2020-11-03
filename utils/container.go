@@ -18,6 +18,7 @@ func PullImage(image string, version string){
 	cmd, err := exec.Command(containerRuntime, "pull", image + ":" + version).Output()
 	if err != nil {
 		fmt.Println(cmd)
+		fmt.Println(err)
 	}
 
 }
@@ -26,11 +27,37 @@ func PullImage(image string, version string){
 func StartImage(image string, version string, encodedyaml string, containername string){
 
 	fmt.Println("Running: " + image)
-	//TODO Need to write the output for the image run
+	/* TODO:
+		- Need to write the output for the image run
+		- Check if the image is already running
+	*/
 	cmd, err := exec.Command(containerRuntime, "run", "-d", "--env=HELPERPOD_CONFIG_YAML=" + encodedyaml, "--net=host", "--name=helpernode-" + containername, image + ":" + version).Output()
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println(cmd)
+	}
+
+}
+
+//going to covert this to use the podman module in the future
+func StopImage(containername string){
+
+	fmt.Println("Stopping: helpernode-" + containername)
+	/* TODO:
+		- Need to write the output for the image run
+		- Check if service is already stopped
+	*/
+	// First, stop container
+	stopcmd, err := exec.Command(containerRuntime, "stop", "-i", "helpernode-" + containername).Output()
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println(stopcmd)
+	}
+	// Then, rm the container so we can reuse the name afterwards
+	rmcmd, err := exec.Command(containerRuntime, "rm", "-i", "--force", "helpernode-" + containername).Output()
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println(rmcmd)
 	}
 
 }
