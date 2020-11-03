@@ -48,13 +48,9 @@ func StopImage(containername string){
 		- Check if service is already stopped
 	*/
 	// First, stop container
-	stopcmd, err := exec.Command(containerRuntime, "stop", "-i", "helpernode-" + containername).Output()
-	if err != nil {
-		fmt.Println(err)
-		fmt.Println(stopcmd)
-	}
+	exec.Command(containerRuntime, "stop", "helpernode-" + containername).Output()
 	// Then, rm the container so we can reuse the name afterwards
-	rmcmd, err := exec.Command(containerRuntime, "rm", "-i", "--force", "helpernode-" + containername).Output()
+	rmcmd, err := exec.Command(containerRuntime, "rm", "--force", "helpernode-" + containername).Output()
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println(rmcmd)
