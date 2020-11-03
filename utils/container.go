@@ -17,7 +17,19 @@ func PullImage(image string, version string){
 	//TODO Need to write the output for the image pull
 	cmd, err := exec.Command(containerRuntime, "pull", image + ":" + version).Output()
 	if err != nil {
-		fmt.Println("here")
+		fmt.Println(cmd)
+	}
+
+}
+
+//going to covert this to use the podman module in the future
+func StartImage(image string, version string, encodedyaml string, containername string){
+
+	fmt.Println("Running: " + image)
+	//TODO Need to write the output for the image run
+	cmd, err := exec.Command(containerRuntime, "run", "-d", "--env=HELPERPOD_CONFIG_YAML=" + encodedyaml, "--net=host", "--name=helpernode-" + containername, image + ":" + version).Output()
+	if err != nil {
+		fmt.Println(err)
 		fmt.Println(cmd)
 	}
 

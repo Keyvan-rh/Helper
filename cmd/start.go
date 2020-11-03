@@ -17,8 +17,12 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"github.com/robertsandoval/ocp4-helpernode/utils"
+	"os"
+	"bufio"
+	"encoding/base64"
+	"io/ioutil"
 )
 
 // startCmd represents the start command
@@ -33,6 +37,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("start called")
+		runContianers()
 	},
 }
 
@@ -48,4 +53,23 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func runContianers() {
+	// Check to see if file exists
+	if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
+		fmt.Println("File " + cfgFile + " does not exist")
+	} else {
+		// Open file on disk
+		f, _ := os.Open(cfgFile)
+		// Read file into a byte slice
+		reader := bufio.NewReader(f)
+		content, _ := ioutil.ReadAll(reader)
+		//Encode to base64
+		encoded := base64.StdEncoding.EncodeToString(content)
+		// run the containers using the encoding
+		for k, v := range images {
+			utils.StartImage(v, "latest", encoded, k)
+		}
+	}
 }

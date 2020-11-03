@@ -31,12 +31,13 @@ var pxe string = "quay.io/helpernode/pxe"
 
 
 // A map value containing some key-value pairs.
-var images=  map[string]string{
+var images =  map[string]string{
 	"dns": "quay.io/helpernode/dns",
 	"dhcp": "quay.io/helpernode/dhcp",
 	"http": "quay.io/helpernode/http",
 	"loadbalancer": "quay.io/helpernode/loadbalancer",
-	"pxe": "quay.io/helpernode/pxe"}
+	"pxe": "quay.io/helpernode/pxe",
+	}
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
@@ -93,4 +94,3 @@ func pullImages(){
 		utils.PullImage(v, "latest")
 	}
 }
- 
