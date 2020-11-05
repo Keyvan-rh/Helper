@@ -17,14 +17,20 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/robertsandoval/ocp4-helpernode/utils"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"log"
 
 	"github.com/spf13/cobra"
 )
 
-// pullCmd represents the pull command
-var pullCmd = &cobra.Command{
-	Use:   "pull",
+var filename string
+var helpme HelpMe
+// createCmd represents the create command
+var createCmd = &cobra.Command{
+	Use:   "create",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -33,21 +39,50 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("pull called")
-		fmt.Println( viper.Get("test.key"))
+		fmt.Println("create called: " + filename)
+		readFile()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(pullCmd)
+	rootCmd.AddCommand(createCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// pullCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	 pullCmd.Flags().BoolP("all", "A", false, "Pull All Images in helper.yaml")
+	//createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+ 	createCmd.Flags().StringVarP(&filename, "filename", "f", "", "HelperNode file to create")
+
+}
+
+func readFile(){
+	yamlFile, err := ioutil.ReadFile(filename)
+	if err != nil {
+		log.Printf("yamlFile.Get err   #%v ", err)
+	}
+	err = yaml.Unmarshal(yamlFile, &helpme)
+	if err != nil {
+		log.Fatalf("Unmarshal: %v", err)
+	}
+	for _, f := range helpme.Runtime.Services {
+		if(f.Run) {
+			utils.PullImage(QUAY + "/" +  f.Service  , DEFAULTTAG)
+		}
+		viper.Set(f.Service, "run")
+	}
+
+}
+
+
+//not needed but leaving for now
+func pullImages(){
+	for k, v := range images {
+		fmt.Println("Pulling : " + k)
+		utils.PullImage(v, "latest")
+	}
 }

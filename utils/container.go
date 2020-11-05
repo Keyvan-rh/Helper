@@ -13,7 +13,7 @@ var containerRuntime string = "podman"
 //going to covert this to use the podman module in the future
 func PullImage(image string, version string){
 
-	fmt.Println("Pulling: " + image)
+	fmt.Println("Pulling: " + image + version)
 	//TODO Need to write the output for the image pull
 	cmd, err := exec.Command(containerRuntime, "pull", image + ":" + version).Output()
 	if err != nil {
@@ -57,3 +57,23 @@ func StopImage(containername string){
 	}
 
 }
+/*
+// pull pulls an image, retrying up to retries times
+func pull(logger log.Logger, image string, retries int) error {
+	logger.V(1).Infof("Pulling image: %s ...", image)
+	err := exec.Command("podman", "pull", image).Run()
+	// retry pulling up to retries times if necessary
+	if err != nil {
+		for i := 0; i < retries; i++ {
+			time.Sleep(time.Second * time.Duration(i+1))
+			logger.V(1).Infof("Trying again to pull image: %q ... %v", image, err)
+			// TODO(bentheelder): add some backoff / sleep?
+			err = exec.Command("podman", "pull", image).Run()
+			if err == nil {
+				break
+			}
+		}
+	}
+	return errors.Wrapf(err, "failed to pull image %q", image)
+}
+ */

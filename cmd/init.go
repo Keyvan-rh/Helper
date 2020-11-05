@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os/exec"
-	"github.com/robertsandoval/ocp4-helpernode/utils"
 )
 
 var containerRuntime string
@@ -86,10 +85,11 @@ func verifyContainerRuntime() {
 }
 
 
-func pullImages(){
+/*func pullImages(){
 	for k, v := range images {
 //		fmt.Printf("key[%s] value[%s]\n", k, v)
 		fmt.Println("Pulling : " + k)
 		utils.PullImage(v, "latest")
 	}
 }
+*/
