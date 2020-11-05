@@ -26,6 +26,9 @@ import (
 
 var cfgFile string
 
+// Define ports needed for preflight check
+var ports = [10]string{"67", "546", "53", "80", "443", "69", "6443", "22623", "8080", "9000"}
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "helpernodectl",
