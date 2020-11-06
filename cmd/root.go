@@ -4,6 +4,11 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
+<<<<<<< HEAD
+=======
+	"os/exec"
+
+>>>>>>> 1435f739d21a50bef12c689a5d30693eb2744547
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
@@ -46,6 +51,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	verifyContainerRuntime()
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
@@ -81,4 +87,13 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func verifyContainerRuntime() {
+	_, err := exec.LookPath("podman")
+	if err != nil {
+		fmt.Println("Podman not found, Please install")
+		os.Exit(9)
+	}
+
 }

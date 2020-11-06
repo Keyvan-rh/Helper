@@ -34,13 +34,41 @@ func StartImage(image string, version string, encodedyaml string, containername 
 	- Need to write the output for the image run
 	- Check if the image is already running
 	*/
+<<<<<<< HEAD
 	cmd, err := exec.Command(containerRuntime, "run", "-d", "--env=HELPERPOD_CONFIG_YAML="+encodedyaml, "--net=host", "--name=helpernode-"+containername, image+":"+version).Output()
+=======
+	addMounts()
+	cmd, err := exec.Command(containerRuntime, "run", "-d", "--env=HELPERPOD_CONFIG_YAML=" + encodedyaml, "--net=host", "--name=helpernode-" + containername, image + ":" + version).Output()
+>>>>>>> 1435f739d21a50bef12c689a5d30693eb2744547
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println(cmd)
 	}
+	removeMounts()
 
 }
+
+func addMounts(){
+	//copy -f file from create to $HOME/.config/contain
+	//check if mounts.conf exists
+}
+
+
+
+func removeMounts(){
+	//zero out mounts file or rather
+}
+
+
+
+
+
+
+
+
+
+
+
 
 //going to covert this to use the podman module in the future
 func StopImage(containername string) {
