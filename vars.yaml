@@ -1,14 +1,22 @@
 ---
+runtime:
+  services:
+    - service: dns
+      run: true
+    - service: dhcp
+      run: true
+    - service: http
+      run: true
+    - service: loadbalancer
+      run: true
+    - service: pxe
+      run: true
 dns:
   domain: "example.com"
   clusterid: "ocp4"
   forwarders:
     - forwarder: "8.8.8.8"
     - forwarder: "8.8.4.4"
-runtime:
-  services:
-    - service: dns
-      run: true
 helper:
   name: "helper"
   ipaddr: "192.168.7.77"

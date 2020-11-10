@@ -20,26 +20,19 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
-
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
 var cfgFile string
 
-// Define ports needed for preflight check
-var ports = [10]string{"67", "546", "53", "80", "443", "69", "6443", "22623", "8080", "9000"}
+
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "helpernodectl",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "A tool to help with OCP installs",
+	Long: `tool to help with OCP installs`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -56,6 +49,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	fmt.Println("in init")
 
 	verifyContainerRuntime()
 	// Here you will define your flags and configuration settings.
@@ -64,13 +58,11 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.helpernodectl.yaml)")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	fmt.Println("in initConfig")
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -93,13 +85,32 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+	testConfigFileWrite()
+
+}
+func testConfigFileWrite(){
+	home, err := homedir.Dir()
+
+	fmt.Println("in testconfigfilewrite writing to " + home)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	viper.AddConfigPath(home)
+	viper.SetConfigName(".helpernodectl")
+	viper.SetConfigType("yaml")
+	viper.SetDefault("ContentDir", "content")
+
+	viper.WriteConfig()
 }
 
 func verifyContainerRuntime() {
 	_, err := exec.LookPath("podman")
 	if err != nil {
 		fmt.Println("Podman not found, Please install")
-		os.Exit(9)
+		//TODO figure out if we really want to exit
+	//	os.Exit(9)
+
 	}
 
 }

@@ -1,5 +1,10 @@
 package cmd
 
+const VERSION string = "latest"
+
+//TODO probably can delete this and use VERSION
+const DEFAULTTAG string = "latest"
+
 type HelpMe struct {
 	Runtime  Runtime    `yaml:"runtime"`
 }
@@ -11,9 +16,12 @@ type Service struct {
 	Run bool `yaml:"run"`
 }
 const QUAY string = "quay.io/helpernode"
-const DEFAULTTAG string = "latest"
 
-//TODO this needs to be removed and start/stop updated once we are reading from viper config file
+// Define ports needed for preflight check
+var ports = [10]string{"67", "546", "53", "80", "443", "69", "6443", "22623", "8080", "9000"}
+
+//Default images
+//TODO Add disconnected
 var images =  map[string]string{
 	"dns": "quay.io/helpernode/dns",
 	"dhcp": "quay.io/helpernode/dhcp",

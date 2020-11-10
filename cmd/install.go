@@ -19,31 +19,33 @@ import (
 	"fmt"
 	"github.com/robertsandoval/ocp4-helpernode/utils"
 	"github.com/spf13/viper"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
-
+	"gopkg.in/yaml.v2"
 	"github.com/spf13/cobra"
 )
 
+
 var filename string
 var helpme HelpMe
-// createCmd represents the create command
-var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create a helpernode configuration",
-	Long: `Create pulls images and sets up initial ~/.helpernodectl.yaml config file`,
+
+
+
+// installCmd represents the install command
+var installCmd = &cobra.Command{
+	Use:   "install",
+	Short: "Install creates a helpernode configuration",
+	Long: `Install creates pulls images and sets up initial ~/.helpernodectl.yaml config file`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("create called: " + filename)
-		readFile()
+		fmt.Println("install called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(createCmd)
- 	createCmd.Flags().StringVarP(&filename, "filename", "f", "", "HelperNode file to create")
-
+	rootCmd.AddCommand(installCmd)
+	installCmd.Flags().StringVarP(&filename, "filename", "f", "", "HelperNode file to create")
 }
+
 
 func readFile(){
 	yamlFile, err := ioutil.ReadFile(filename)
