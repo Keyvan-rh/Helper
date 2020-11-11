@@ -1,71 +1,58 @@
----
-runtime:
-  services:
-    - service: dns
-      run: true
-    - service: dhcp
-      run: true
-    - service: http
-      run: true
-    - service: loadbalancer
-      run: true
-    - service: pxe
-      run: true
-dns:
-  domain: "example.com"
-  clusterid: "ocp4"
-  forwarders:
-    - forwarder: "8.8.8.8"
-    - forwarder: "8.8.4.4"
-helper:
-  name: "helper"
-  ipaddr: "192.168.7.77"
-  networkifacename: "ens3"
-dns:
-  domain: "example.com"
-  clusterid: "ocp4"
-  forwarder1: "8.8.8.8"
-  forwarder2: "8.8.4.4"
-dhcp:
-  router: "192.168.7.1"
-  bcast: "192.168.7.255"
-  netmask: "255.255.255.0"
-  poolstart: "192.168.7.10"
-  poolend: "192.168.7.30"
-  ipid: "192.168.7.0"
-  netmaskid: "255.255.255.0"
+a_runtime:
+  dhcp: false
+  dns: false
+  http: true
+  loadbalancer: false
+  pxe: false
 bootstrap:
-  name: "bootstrap"
-  ipaddr: "192.168.7.20"
-  macaddr: "52:54:00:60:72:67"
   disk: vda
+  ipaddr: 192.168.7.20
+  macaddr: 52:54:00:60:72:67
+  name: bootstrap
+dhcp:
+  bcast: 192.168.7.255
+  ipid: 192.168.7.0
+  netmask: 255.255.255.0
+  netmaskid: 255.255.255.0
+  poolend: 192.168.7.30
+  poolstart: 192.168.7.10
+  router: 192.168.7.1
+dns:
+  clusterid: ocp4
+  domain: example.com
+  forwarder1: 8.8.8.8
+  forwarder2: 8.8.4.4
+helper:
+  ipaddr: 192.168.7.77
+  name: helper
+  networkifacename: ens3
 masters:
-  - name: "master0"
-    ipaddr: "192.168.7.21"
-    macaddr: "52:54:00:e7:9d:67"
-    disk: vda
-  - name: "master1"
-    ipaddr: "192.168.7.22"
-    macaddr: "52:54:00:80:16:23"
-    disk: vda
-  - name: "master2"
-    ipaddr: "192.168.7.23"
-    macaddr: "52:54:00:d5:1c:39"
-    disk: vda
-workers:
-  - name: "worker0"
-    ipaddr: "192.168.7.11"
-    macaddr: "52:54:00:f4:26:a1"
-    disk: vda
-  - name: "worker1"
-    ipaddr: "192.168.7.12"
-    macaddr: "52:54:00:82:90:00"
-    disk: vda
-  - name: "worker2"
-    ipaddr: "192.168.7.13"
-    macaddr: "52:54:00:8e:10:34"
-    disk: vda
+- disk: vda
+  ipaddr: 192.168.7.21
+  macaddr: 52:54:00:e7:9d:67
+  name: master0
+- disk: vda
+  ipaddr: 192.168.7.22
+  macaddr: 52:54:00:80:16:23
+  name: master1
+- disk: vda
+  ipaddr: 192.168.7.23
+  macaddr: 52:54:00:d5:1c:39
+  name: master2
 other:
-  - name: "non-cluster-vm"
-    ipaddr: "192.168.7.31"
-    macaddr: "52:54:00:f4:2e:2e"
+- ipaddr: 192.168.7.31
+  macaddr: 52:54:00:f4:2e:2e
+  name: non-cluster-vm
+workers:
+- disk: vda
+  ipaddr: 192.168.7.11
+  macaddr: 52:54:00:f4:26:a1
+  name: worker0
+- disk: vda
+  ipaddr: 192.168.7.12
+  macaddr: 52:54:00:82:90:00
+  name: worker1
+- disk: vda
+  ipaddr: 192.168.7.13
+  macaddr: 52:54:00:8e:10:34
+  name: worker2

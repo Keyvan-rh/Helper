@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 	"os/exec"
 	homedir "github.com/mitchellh/go-homedir"
@@ -26,16 +27,14 @@ import (
 
 var cfgFile string
 
-
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "helpernodectl",
 	Short: "A tool to help with OCP installs",
-	Long: `tool to help with OCP installs`,
+	Long: `You must run install with the -f option to set things up`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+//	Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -49,12 +48,8 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	fmt.Println("in init")
 
 	verifyContainerRuntime()
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.helpernodectl.yaml)")
 
@@ -62,7 +57,6 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	fmt.Println("in initConfig")
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -85,13 +79,13 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
-	testConfigFileWrite()
+	setDefaults()
 
 }
-func testConfigFileWrite(){
+//This takes what was passed as --config and writes it to $HOME/.helpernodectl.yaml
+func setDefaults(){
 	home, err := homedir.Dir()
 
-	fmt.Println("in testconfigfilewrite writing to " + home)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -99,9 +93,24 @@ func testConfigFileWrite(){
 	viper.AddConfigPath(home)
 	viper.SetConfigName(".helpernodectl")
 	viper.SetConfigType("yaml")
-	viper.SetDefault("ContentDir", "content")
+	//TODO figure out if we want to set defaults here
 
-	viper.WriteConfig()
+	//Touch the file in case it doesn't exist
+	//TODO figure out a better way to do this
+	emptyFile, err := os.Create(home + "/.helpernodectl.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	emptyFile.Close()
+
+	err = viper.WriteConfig()
+	if err != nil {
+		fmt.Println("Error writing config file")
+		fmt.Println(err)
+	} else {
+		fmt.Println("Writing to:" + viper.ConfigFileUsed())
+	}
+
 }
 
 func verifyContainerRuntime() {
@@ -109,7 +118,7 @@ func verifyContainerRuntime() {
 	if err != nil {
 		fmt.Println("Podman not found, Please install")
 		//TODO figure out if we really want to exit
-	//	os.Exit(9)
+		os.Exit(9)
 
 	}
 

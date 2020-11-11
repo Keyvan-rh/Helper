@@ -16,13 +16,12 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"github.com/robertsandoval/ocp4-helpernode/utils"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
-	"gopkg.in/yaml.v2"
-	"github.com/spf13/cobra"
 )
 
 
@@ -37,18 +36,18 @@ var installCmd = &cobra.Command{
 	Short: "Install creates a helpernode configuration",
 	Long: `Install creates pulls images and sets up initial ~/.helpernodectl.yaml config file`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("install called")
+		readFile()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(installCmd)
-	installCmd.Flags().StringVarP(&filename, "filename", "f", "", "HelperNode file to create")
+//	installCmd.Flags().StringVarP(&filename, "filename", "f", "", "HelperNode file to create")
 }
 
 
 func readFile(){
-	yamlFile, err := ioutil.ReadFile(filename)
+	yamlFile, err := ioutil.ReadFile(cfgFile)
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
 	}
@@ -56,11 +55,9 @@ func readFile(){
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
 	}
-	for _, f := range helpme.Runtime.Services {
-		if(f.Run) {
-			utils.PullImage(QUAY + "/" +  f.Service  , DEFAULTTAG)
+	for name, image := range images {
+		if(viper.GetBool("a_runtime." + name)) {
+			utils.PullImage(image, DEFAULTTAG)
 		}
-		viper.Set(f.Service, "run")
 	}
-
 }

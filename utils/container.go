@@ -13,7 +13,7 @@ var containerRuntime string = "podman"
 //going to covert this to use the podman module in the future
 func PullImage(image string, version string){
 
-	fmt.Println("Pulling: " + image + version)
+	fmt.Println("Pulling: " + image + ":" + version)
 	//TODO Need to write the output for the image pull
 	cmd, err := exec.Command(containerRuntime, "pull", image + ":" + version).Output()
 	if err != nil {
@@ -26,42 +26,17 @@ func PullImage(image string, version string){
 //going to covert this to use the podman module in the future
 func StartImage(image string, version string, encodedyaml string, containername string){
 
-	fmt.Println("Running: " + image)
 	/* TODO:
 		- Need to write the output for the image run
 		- Check if the image is already running
 	*/
-	addMounts()
-	cmd, err := exec.Command(containerRuntime, "run", "-d", "--env=HELPERPOD_CONFIG_YAML=" + encodedyaml, "--net=host", "--name=helpernode-" + containername, image + ":" + version).Output()
+	_, err := exec.Command(containerRuntime, "run", "-d", "--env=HELPERPOD_CONFIG_YAML=" + encodedyaml, "--net=host", "--name=helpernode-" + containername, image + ":" + version).Output()
 	if err != nil {
 		fmt.Println(err)
-		fmt.Println(cmd)
+	//		fmt.Println(cmd)
 	}
-	removeMounts()
 
 }
-
-func addMounts(){
-	//copy -f file from create to $HOME/.config/contain
-	//check if mounts.conf exists
-}
-
-
-
-func removeMounts(){
-	//zero out mounts file or rather
-}
-
-
-
-
-
-
-
-
-
-
-
 
 //going to covert this to use the podman module in the future
 func StopImage(containername string){
@@ -83,6 +58,7 @@ func StopImage(containername string){
 }
 
 /*
+//TODO  look at this function
 // pull pulls an image, retrying up to retries times
 func pull(logger log.Logger, image string, retries int) error {
 	logger.V(1).Infof("Pulling image: %s ...", image)

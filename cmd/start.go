@@ -16,59 +16,50 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/robertsandoval/ocp4-helpernode/utils"
-	"os"
 	"bufio"
 	"encoding/base64"
+	"fmt"
+	"github.com/robertsandoval/ocp4-helpernode/utils"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"io/ioutil"
+	"os"
 )
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Starts helpernode containers - must run as root",
+	Long: "Starts helpernode containers - must run as root",
 	Run: func(cmd *cobra.Command, args []string) {
-		runContianers()
+		runContainers()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// startCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func runContianers() {
+func runContainers() {
 	// Check to see if file exists
-	if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-		fmt.Println("File " + cfgFile + " does not exist")
+	fmt.Println("config file used: " + viper.ConfigFileUsed())
+	configurationFile:=viper.ConfigFileUsed()
+	if _, err := os.Stat(viper.ConfigFileUsed()); os.IsNotExist(err) {
+		fmt.Println("File " + configurationFile + " does not exist")
 	} else {
 		// Open file on disk
-		f, _ := os.Open(cfgFile)
+		f, _ := os.Open(configurationFile)
 		// Read file into a byte slice
 		reader := bufio.NewReader(f)
 		content, _ := ioutil.ReadAll(reader)
 		//Encode to base64
 		encoded := base64.StdEncoding.EncodeToString(content)
 		// run the containers using the encoding
-		for k, v := range images {
-			utils.StartImage(v, "latest", encoded, k)
+		for name, image := range images {
+			if (viper.GetBool("a_runtime." + name)) {
+				fmt.Println("starting:: " + name)
+				utils.StartImage(image, "latest", encoded, name)
+			}
 		}
 	}
 }

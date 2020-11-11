@@ -6,10 +6,15 @@ const VERSION string = "latest"
 const DEFAULTTAG string = "latest"
 
 type HelpMe struct {
-	Runtime  Runtime    `yaml:"runtime"`
+	Runtime  Runtime    `yaml:"a_runtime"`
+
 }
 type Runtime struct {
-	Services []Service `yaml:"services"`
+	dns string `yaml:"dns"`
+	dhcp string `yaml:"dhcp"`
+	http string `yaml:"http"`
+	loadbalancer string `yaml:"loadbalancer"`
+	pxe string `yaml:"pxe"`
 }
 type Service struct {
 	Service string `yaml:"service"`
