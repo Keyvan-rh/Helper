@@ -1,40 +1,72 @@
-/*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"log"
 	"os"
 	"os/exec"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
+// set the global config file as a string
 var cfgFile string
 
+// Env var to the image prefix
+var HELPERNODE_IMAGE_PREFIX string
+
+//cli clients as a map
+var clients = map[string]string {
+	"oc": "openshift-client-linux.tar.gz",
+	"openshift-install": "openshift-install-linux.tar.gz",
+	"helm": "helm.tar.gz",
+}
+
+// Define images and their registry location
+var images = map[string]string {
+	"dns": "quay.io/helpernode/dns",
+	"dhcp": "quay.io/helpernode/dhcp",
+	"http": "quay.io/helpernode/http",
+	"loadbalancer": "quay.io/helpernode/loadbalancer",
+	"pxe": "quay.io/helpernode/pxe",
+}
+
+// Define ports needed for preflight check of listening ports
+var ports = [10]string{"67", "546", "53", "80", "443", "69", "6443", "22623", "8080", "9000"}
+
+// Define firewalld rules needed to be in place
+var fwrule = [13]string {
+	"6443/tcp",
+	"22623/tcp",
+	"8080/tcp",
+	"9000/tcp",
+	"9090/tcp",
+	"67/udp",
+	"546/udp",
+	"53/tcp",
+	"53/udp",
+	"80/tcp",
+	"443/tcp",
+	"22/tcp",
+	"69/udp",
+}
+
+// Define systemd services we will check
+var systemdsvc = map[string]string {
+	"resolved": "systemd-resolved.service",
+	"dnsmasq" : "dnsmasq.service",
+}
+
 // rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
+var rootCmd = &cobra.Command {
 	Use:   "helpernodectl",
-	Short: "A tool to help with OCP installs",
-	Long: `You must run install with the -f option to set things up`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-//	Run: func(cmd *cobra.Command, args []string) { },
+	Short: "Utility for the HelperNode",
+	Long: `This cli utility is used to stop/start the HelperNode
+on the host it's ran from. You need to provide a helpernode.yaml file
+with information about your helper config. A simple example to start
+your HelperNode is:
+
+helpernodectl start --config=helpernode.yaml`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -47,12 +79,31 @@ func Execute() {
 }
 
 func init() {
+	verifyContainerRuntime()
+	verifyFirewallCommand()
 	cobra.OnInitialize(initConfig)
 
-	verifyContainerRuntime()
+	// Here you will define your flags and configuration settings.
+	// Cobra supports persistent flags, which, if defined here,
+	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.helpernodectl.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.helpernode.yaml)")
 
+	// Cobra also supports local flags, which will only run
+	// when this action is called directly.
+	//rootCmd.Flags().BoolP("all", "a", false, "do it for all containers")
+
+	if len(os.Getenv("HELPERNODE_IMAGE_PREFIX")) > 0 {
+		// Define images and their registry location based on the env var
+		imageprefix := os.Getenv("HELPERNODE_IMAGE_PREFIX")
+		images = map[string]string {
+			"dns": imageprefix + "/helpernode/dns",
+			"dhcp": imageprefix + "/helpernode/dhcp",
+			"http": imageprefix + "/helpernode/http",
+			"loadbalancer": imageprefix + "/helpernode/loadbalancer",
+			"pxe": imageprefix + "/helpernode/pxe",
+		}
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -68,58 +119,42 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".helpernodectl" (without extension).
+		// Search config in home directory with name ".helpernode" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".helpernodectl")
+		viper.SetConfigName(".helpernode")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	if err := viper.ReadInConfig(); err != nil {
+		//fmt.Println("Using config file:", viper.ConfigFileUsed())
+		//fmt.Fprintf(os.Stderr, "Error reading config: %s\n", err)
+		//os.Exit(1)
+		/*
+			Do nothing for now. Checking for the config file will rely on the 
+			individual "subcommands" and their children. See cmd/start.go for
+			an example.
+		*/
 	}
-	setDefaults()
-
-}
-//This takes what was passed as --config and writes it to $HOME/.helpernodectl.yaml
-func setDefaults(){
-	home, err := homedir.Dir()
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	viper.AddConfigPath(home)
-	viper.SetConfigName(".helpernodectl")
-	viper.SetConfigType("yaml")
-	//TODO figure out if we want to set defaults here
-
-	//Touch the file in case it doesn't exist
-	//TODO figure out a better way to do this
-	emptyFile, err := os.Create(home + "/.helpernodectl.yaml")
-	if err != nil {
-		log.Fatal(err)
-	}
-	emptyFile.Close()
-
-	err = viper.WriteConfig()
-	if err != nil {
-		fmt.Println("Error writing config file")
-		fmt.Println(err)
-	} else {
-		fmt.Println("Writing to:" + viper.ConfigFileUsed())
-	}
-
 }
 
+// Check runtime. Right now it's just podman
 func verifyContainerRuntime() {
+
 	_, err := exec.LookPath("podman")
 	if err != nil {
-		fmt.Println("Podman not found, Please install")
-		//TODO figure out if we really want to exit
-		os.Exit(9)
-
+		fmt.Fprintf(os.Stderr, "Error looking for Podman: %s\n", err)
+		os.Exit(1)
 	}
+}
 
+// Check runtime. Right now it's just podman
+func verifyFirewallCommand() {
+
+	_, err := exec.LookPath("firewall-cmd")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error looking for firewall-cmd: %s\n", err)
+		os.Exit(1)
+	}
 }

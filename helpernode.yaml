@@ -1,10 +1,5 @@
----
-dns:
-  domain: "example.com"
-  clusterid: "ocp4"
-  forwarders:
-    - forwarder: "8.8.8.8"
-    - forwarder: "8.8.4.4"
+version: v2
+arch: "x86_64"
 helper:
   name: "helper"
   ipaddr: "192.168.7.77"
@@ -49,11 +44,3 @@ workers:
     ipaddr: "192.168.7.12"
     macaddr: "52:54:00:82:90:00"
     disk: vda
-  - name: "worker2"
-    ipaddr: "192.168.7.13"
-    macaddr: "52:54:00:8e:10:34"
-    disk: vda
-other:
-  - name: "non-cluster-vm"
-    ipaddr: "192.168.7.31"
-    macaddr: "52:54:00:f4:2e:2e"

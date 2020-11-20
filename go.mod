@@ -1,4 +1,4 @@
-module github.com/robertsandoval/ocp4-helpernode
+module helpernodectl
 
 go 1.14
 
