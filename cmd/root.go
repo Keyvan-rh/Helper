@@ -17,24 +17,26 @@ package cmd
 
 import (
 	"fmt"
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"log"
 	"os"
 	"os/exec"
-	homedir "github.com/mitchellh/go-homedir"
-	"github.com/spf13/viper"
 )
 
 var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
+var rootCmd = &cobra.Command {
 	Use:   "helpernodectl",
-	Short: "A tool to help with OCP installs",
-	Long: `You must run install with the -f option to set things up`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-//	Run: func(cmd *cobra.Command, args []string) { },
+	Short: "Utility for the HelperNode",
+	Long: `This cli utility is used to stop/start the HelperNode
+on the host it's ran from. You need to provide a helpernode.yaml file
+with information about your helper config. A simple example to start
+your HelperNode is:
+
+helpernodectl start --config=helpernode.yaml`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -48,10 +50,23 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+//	verifyContainerRuntime()
+//	verifyFirewallCommand()
 
-	verifyContainerRuntime()
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.helpernodectl.yaml)")
+	//TODO Viper reads in ENV variables so not sure if there is a benefit for that way or this. Just adding this to research it.
+	if len(os.Getenv("HELPERNODE_IMAGE_PREFIX")) > 0 {
+		// Define images and their registry location based on the env var
+		imageprefix := os.Getenv("HELPERNODE_IMAGE_PREFIX")
+		images = map[string]string {
+			"dns": imageprefix + "/helpernode/dns",
+			"dhcp": imageprefix + "/helpernode/dhcp",
+			"http": imageprefix + "/helpernode/http",
+			"loadbalancer": imageprefix + "/helpernode/loadbalancer",
+			"pxe": imageprefix + "/helpernode/pxe",
+		}
+	}
 
 }
 
@@ -79,9 +94,13 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+
 	setDefaults()
+	reconcileImageList()
+
 
 }
+
 //This takes what was passed as --config and writes it to $HOME/.helpernodectl.yaml
 func setDefaults(){
 	home, err := homedir.Dir()
@@ -122,4 +141,22 @@ func verifyContainerRuntime() {
 
 	}
 
+}
+
+func verifyFirewallCommand() {
+
+	_, err := exec.LookPath("firewall-cmd")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error looking for firewall-cmd: %s\n", err)
+		os.Exit(1)
+	}
+}
+
+
+func reconcileImageList()  {
+	disabledServices := viper.GetStringSlice("disabledServices")
+	for name  := range disabledServices {
+		delete(images, disabledServices[name])
+	}
+	//TODO Add code for pluginServices
 }

@@ -38,6 +38,11 @@ var startCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(startCmd)
+	startCmd.Flags().BoolP("skip-preflight", "", false, "Skips preflight checks and tries to start the containers")
+	startCmd.Flags().String("service", "", "start a service/container (preflight NOT performed). Valid names: dns, dhcp, http, loadbalancer, pxe")
+
+	//TODO lets move the file read from ~/.helpernodectl.yaml or from --config here and remove the read from runContainers()
+	// or better yet move it into root so as things get added its globally available and there is functionality there already
 }
 
 func runContainers() {
@@ -56,10 +61,12 @@ func runContainers() {
 		encoded := base64.StdEncoding.EncodeToString(content)
 		// run the containers using the encoding
 		for name, image := range images {
-			if (viper.GetBool("a_runtime." + name)) {
-				fmt.Println("starting:: " + name)
+			if IsImageRunning("helpernode-" + name) {
+				fmt.Println("SKIPPING: Container helpernode-" + name + " already running.")
+			} else {
 				utils.StartImage(image, "latest", encoded, name)
 			}
 		}
 	}
 }
+

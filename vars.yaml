@@ -1,9 +1,8 @@
-a_runtime:
-  dhcp: false
-  dns: false
-  http: true
-  loadbalancer: false
-  pxe: false
+version: v2
+arch: "x86_64"
+disabledServices:
+  - dhcp
+  - dns
 bootstrap:
   disk: vda
   ipaddr: 192.168.7.20
