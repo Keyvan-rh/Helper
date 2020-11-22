@@ -15,7 +15,9 @@ limitations under the License.
 */
 package main
 
-import "github.com/robertsandoval/ocp4-helpernode/cmd"
+import (
+	"github.com/robertsandoval/ocp4-helpernode/cmd"
+)
 
 func main() {
 	cmd.Execute()

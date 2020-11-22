@@ -4,6 +4,8 @@ const VERSION string = "latest"
 
 //TODO probably can delete this and use VERSION
 const DEFAULTTAG string = "latest"
+var logLevel string
+
 
 type HelpMe struct {
 	Runtime  Runtime    `yaml:"a_runtime"`

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/spf13/viper"
 	"os"
 	"os/exec"
 	"strings"
@@ -246,4 +247,35 @@ func OpenPort(port string) {
 		os.Exit(253)
 	}
 }
+
+
+func verifyContainerRuntime() {
+	_, err := exec.LookPath("podman")
+	if err != nil {
+		fmt.Println("Podman not found, Please install")
+		//TODO figure out if we really want to exit
+		os.Exit(9)
+
+	}
+
+}
+
+func verifyFirewallCommand() {
+
+	_, err := exec.LookPath("firewall-cmd")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error looking for firewall-cmd: %s\n", err)
+		os.Exit(1)
+	}
+}
+
+
+func reconcileImageList()  {
+	disabledServices := viper.GetStringSlice("disabledServices")
+	for name  := range disabledServices {
+		delete(images, disabledServices[name])
+	}
+	//TODO Add code for pluginServices
+}
+
 

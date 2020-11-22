@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"github.com/robertsandoval/ocp4-helpernode/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
@@ -42,11 +43,11 @@ var installCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(installCmd)
-//	installCmd.Flags().StringVarP(&filename, "filename", "f", "", "HelperNode file to create")
 }
 
 
 func readFile(){
+	logrus.Trace("in readfile")
 	yamlFile, err := ioutil.ReadFile(cfgFile)
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
