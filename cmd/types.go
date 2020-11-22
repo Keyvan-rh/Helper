@@ -1,11 +1,19 @@
 package cmd
 
-const VERSION string = "latest"
+//TODO finalize version
+const VERSION string = "4.6"
 
 //TODO probably can delete this and use VERSION
 const DEFAULTTAG string = "latest"
+
+var imageName string
+var imageVersion string
+var containerRuntime string = "podman"
+var repository string = "helpernode"
+var registry string = "quay.io"
 var logLevel string
 
+//TODO remove probably
 
 type HelpMe struct {
 	Runtime  Runtime    `yaml:"a_runtime"`
@@ -22,10 +30,20 @@ type Service struct {
 	Service string `yaml:"service"`
 	Run bool `yaml:"run"`
 }
-const QUAY string = "quay.io/helpernode"
 
 // Define ports needed for preflight check
-var ports = [10]string{"67", "546", "53", "80", "443", "69", "6443", "22623", "8080", "9000"}
+var ports = [10]string{
+	"67",
+	"546",
+	"53",
+	"80",
+	"443",
+	"69",
+	"6443",
+	"22623",
+	"8080",
+	"9000",
+}
 
 //Default images
 //TODO Add disconnected

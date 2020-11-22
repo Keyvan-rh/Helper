@@ -19,7 +19,7 @@ import (
 	"bufio"
 	"encoding/base64"
 	"fmt"
-	"github.com/robertsandoval/ocp4-helpernode/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
@@ -27,12 +27,56 @@ import (
 )
 
 // startCmd represents the start command
+/* TODO need to remove once clean up is done
 var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Starts helpernode containers - must run as root",
 	Long: "Starts helpernode containers - must run as root",
 	Run: func(cmd *cobra.Command, args []string) {
 		runContainers()
+	},
+}
+ */
+
+var startCmd = &cobra.Command{
+	Use:   "start",
+	Short: "Starts HelperNode containers based on the provided manifest.",
+	Long: `This will start the containers needed for the HelperNode to run.
+It will run the services depending on what manifest is passed.
+Examples:
+	helpernodectl start --config=helpernode.yaml
+	
+	cp helpernode.yaml ~/.helpernode.yaml
+	helpernodectl start
+This manifest should have all the information the services need to start
+up successfully.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		// get any options passed
+		skippreflight, _ := cmd.Flags().GetBool("skip-preflight")
+		svc, _ := cmd.Flags().GetString("service")
+		///
+		if len(svc) > 0 {
+			// check if the string passed matches a service
+			if _, exists := images[svc]; exists {
+				//if it matches; create a "single service" map and pass that to the stop function
+				singleservicemap := map[string]string{svc: images[svc]}
+				startImages(singleservicemap)
+			} else {
+				// If I didn't find it...tell them
+				fmt.Println("Invalid service: " + svc)
+				os.Exit(12)
+			}
+		} else {
+			if skippreflight {
+				fmt.Printf("Skipping Preflightchecks\n======================\n")
+				startImages(images)
+			} else {
+				preflightCmd.Run(cmd, []string{})
+				fmt.Printf("Starting Containers\n======================\n")
+				startImages(images)
+			}
+		}
+		///
 	},
 }
 
@@ -46,8 +90,20 @@ func init() {
 }
 
 func runContainers() {
+	reconcileImageList()
+	for name, image := range images {
+		if IsImageRunning("helpernode-" + name) {
+			fmt.Println("SKIPPING: Container helpernode-" + name + " already running.")
+		} else {
+			StartImage(image, "latest", getEncodedConfuration(), name)
+		}
+	}
+}
+
+func getEncodedConfuration() string {
 	// Check to see if file exists
-	fmt.Println("config file used: " + viper.ConfigFileUsed())
+	logrus.Trace("Config file used: " + viper.ConfigFileUsed())
+	var encoded string
 	configurationFile:=viper.ConfigFileUsed()
 	if _, err := os.Stat(viper.ConfigFileUsed()); os.IsNotExist(err) {
 		fmt.Println("File " + configurationFile + " does not exist")
@@ -58,15 +114,8 @@ func runContainers() {
 		reader := bufio.NewReader(f)
 		content, _ := ioutil.ReadAll(reader)
 		//Encode to base64
-		encoded := base64.StdEncoding.EncodeToString(content)
-		// run the containers using the encoding
-		for name, image := range images {
-			if IsImageRunning("helpernode-" + name) {
-				fmt.Println("SKIPPING: Container helpernode-" + name + " already running.")
-			} else {
-				utils.StartImage(image, "latest", encoded, name)
-			}
-		}
+		encoded = base64.StdEncoding.EncodeToString(content)
 	}
+	return encoded
 }
 

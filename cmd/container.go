@@ -1,26 +1,34 @@
-package utils
+package cmd
+
 
 import (
+	"bufio"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"os/exec"
 )
-
-var ImageName string
-var ImageVersion string
-//setting this up for future docker support possibly
-var containerRuntime string = "podman"
 
 //going to covert this to use the podman module in the future
 func PullImage(image string, version string){
 
 	fmt.Println("Pulling: " + image + ":" + version)
 	//TODO Need to write the output for the image pull
-	cmd, err := exec.Command(containerRuntime, "pull", image + ":" + version).Output()
-	if err != nil {
-		fmt.Println(cmd)
-		fmt.Println(err)
+	cmd := exec.Command(containerRuntime, "pull", image + ":" + version)
+	runCmd(cmd)
+}
+
+func runCmd(cmd *exec.Cmd ){
+	stderr, _ := cmd.StderrPipe()
+	if err := cmd.Start(); err != nil {
+		logrus.Fatal(err)
 	}
 
+	scanner := bufio.NewScanner(stderr)
+	for scanner.Scan() {
+		m := scanner.Text()
+		fmt.Println(m)
+	}
+	cmd.Wait()
 }
 
 //going to covert this to use the podman module in the future

@@ -8,13 +8,10 @@ import (
 	"strings"
 )
 
-var ImageName string
-var ImageVersion string
-var containerRuntime string = "podman"
 type Config struct {
 	Services []string `yaml:"disableservice"`
 }
-
+/*
 //going to covert this to use the podman module in the future
 func PullImage(image string, version string) {
 
@@ -26,7 +23,7 @@ func PullImage(image string, version string) {
 	}
 
 }
-
+*/
 // Find takes a slice and looks for an element in it. If found it will
 // return it's key, otherwise it will return -1 and a bool of false.
 func Find(slice []string, val string) (int, bool) {
@@ -37,7 +34,7 @@ func Find(slice []string, val string) (int, bool) {
 	}
 	return -1, false
 }
-
+/*TODO need to remove this after testing
 //going to covert this to use the podman module in the future
 func StartImage(image string, version string, encodedyaml string, containername string) {
 
@@ -59,6 +56,8 @@ func StopImage(containername string) {
 	// Then, rm the container so we can reuse the name afterwards
 	exec.Command(containerRuntime, "rm", "--force", "helpernode-"+containername).Output()
 }
+
+ */
 
 //check if an image is running. Return true if it is
 //TODO see if we can do this with a --filter to get it to 1 result back. This implies building the iamge with some LABEL commands
@@ -271,6 +270,20 @@ func verifyFirewallCommand() {
 
 
 func reconcileImageList()  {
+	//TODO verify if there is a HELPERNODE_IMAGE_PREFIX environment variable
+	//TODO Viper reads in ENV variables so not sure if there is a benefit for that way or this. Just adding this to research it.
+	if len(os.Getenv("HELPERNODE_IMAGE_PREFIX")) > 0 {
+		// Define images and their registry location based on the env var
+		imageprefix := os.Getenv("HELPERNODE_IMAGE_PREFIX")
+		images = map[string]string {
+			"dns": imageprefix + "/helpernode/dns",
+			"dhcp": imageprefix + "/helpernode/dhcp",
+			"http": imageprefix + "/helpernode/http",
+			"loadbalancer": imageprefix + "/helpernode/loadbalancer",
+			"pxe": imageprefix + "/helpernode/pxe",
+		}
+	}
+
 	disabledServices := viper.GetStringSlice("disabledServices")
 	for name  := range disabledServices {
 		delete(images, disabledServices[name])

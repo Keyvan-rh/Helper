@@ -31,8 +31,7 @@ helpernodectl start --config=helpernode.yaml`,
 func Execute() {
 	setUpLogging()
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		logrus.Fatal(err)
 	}
 }
 
@@ -60,7 +59,6 @@ func init() {
 			"pxe": imageprefix + "/helpernode/pxe",
 		}
 	}
-
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -98,14 +96,11 @@ func initConfig() {
 }
 func setUpLogging() {
     logrus.SetOutput(os.Stdout)
-
 	level, err := logrus.ParseLevel(logLevel)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "invalid log-level"))
 	}
-
 	logrus.SetLevel(level)
-
 }
 
 //This takes what was passed as --config and writes it to $HOME/.helpernodectl.yaml

@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/robertsandoval/ocp4-helpernode/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -41,7 +40,7 @@ func stopContainers() {
 	for name, _ := range images {
 		if (viper.GetBool("a_runtime." + name)) {
 			fmt.Println("Stopping: " + name)
-			utils.StopImage(name)
+			StopImage(name)
 		}
 	}
 
