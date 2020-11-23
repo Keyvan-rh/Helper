@@ -22,9 +22,13 @@ import (
 
 // installCmd represents the install command
 var installCmd = &cobra.Command{
+	Args: func(cmd *cobra.Command, args []string) error {
+		validateArgs(args)
+		return nil
+	},
 	Use:   "install",
 	Short: "Install creates a helpernode configuration",
-	Long: `Install creates pulls images and sets up initial ~/.helpernodectl.yaml config file`,
+	Long:  `Install creates pulls images and sets up initial ~/.helpernodectl.yaml config file`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		fmt.Println("called install")
@@ -34,5 +38,3 @@ var installCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(installCmd)
 }
-
-

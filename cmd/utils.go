@@ -15,6 +15,7 @@ import (
 type Config struct {
 	Services []string `yaml:"disableservice"`
 }
+
 /*
 //going to covert this to use the podman module in the future
 func PullImage(image string, version string) {
@@ -38,6 +39,7 @@ func Find(slice []string, val string) (int, bool) {
 	}
 	return -1, false
 }
+
 /*TODO need to remove this after testing
 //going to covert this to use the podman module in the future
 func StartImage(image string, version string, encodedyaml string, containername string) {
@@ -61,7 +63,7 @@ func StopImage(containername string) {
 	exec.Command(containerRuntime, "rm", "--force", "helpernode-"+containername).Output()
 }
 
- */
+*/
 
 //check if an image is running. Return true if it is
 //TODO see if we can do this with a --filter to get it to 1 result back. This implies building the iamge with some LABEL commands
@@ -251,7 +253,6 @@ func OpenPort(port string) {
 	}
 }
 
-
 func verifyContainerRuntime() {
 	_, err := exec.LookPath("podman")
 	if err != nil {
@@ -280,15 +281,15 @@ func reconcileImageList(list []string) {
 
 	//use cases
 	//all is implied so need to remove disabledServices
-	if list[0]=="all"{
+	if list[0] == "all" {
 		//lets remove any disabled images
-		for name  := range disabledServices {
+		for name := range disabledServices {
 			delete(images, disabledServices[name])
 		}
 	} else {
-	// else we need to start with images and delete
-	//  if images[name] == list[0] then do nothing else delete
-		for _, name := range list{
+		// else we need to start with images and delete
+		//  if images[name] == list[0] then do nothing else delete
+		for _, name := range list {
 			if _, exists := images[name]; !exists {
 				delete(images, images[name])
 			}
@@ -302,7 +303,7 @@ func getEncodedConfuration() string {
 	// Check to see if file exists
 	logrus.Trace("Config file used: " + viper.ConfigFileUsed())
 	var encoded string
-	configurationFile:=viper.ConfigFileUsed()
+	configurationFile := viper.ConfigFileUsed()
 	if _, err := os.Stat(viper.ConfigFileUsed()); os.IsNotExist(err) {
 		fmt.Println("File " + configurationFile + " does not exist")
 	} else {
@@ -316,15 +317,19 @@ func getEncodedConfuration() string {
 	}
 	return encoded
 }
-func validateArgs(args []string){
+func validateArgs(args []string) {
 	imageCount := len(args)
 
 	//if bare start command assume "all"
 	if imageCount == 0 {
+		logrus.Debug("starting all")
 		imageList = []string{"all"}
 	} else if imageCount == 1 {
+
+		logrus.Debug("starting: " + args[0])
 		//parse image list
 		imageList = strings.Split(args[0], ",")
+		fmt.Println(imageList)
 
 		//TODO make sure plugable images is added to images var
 		//Lets make sure its in our list of images (should include pluggable images)

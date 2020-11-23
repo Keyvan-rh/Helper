@@ -16,14 +16,15 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 var startCmd = &cobra.Command{
 	Args: func(cmd *cobra.Command, args []string) error {
-				validateArgs(args)
-				return nil
+		validateArgs(args)
+		logrus.Debug("args: " + args[0])
+		return nil
 	},
 	Use:   "start",
 	Short: "Starts HelperNode containers based on the provided manifest.",
@@ -39,10 +40,10 @@ up successfully.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		skippreflight, _ := cmd.Flags().GetBool("skip-preflight")
 		if skippreflight {
-			fmt.Printf("Skipping Preflightchecks\n======================\n")
+			logrus.Info("Skipping Preflightchecks\n======================\n")
 		} else {
 			preflightCmd.Run(cmd, []string{})
-			fmt.Printf("Starting Containers\n======================\n")
+			logrus.Info("Starting Containers\n======================\n")
 		}
 		runContainers()
 	},
@@ -58,11 +59,9 @@ func runContainers() {
 	reconcileImageList(imageList)
 	for name, image := range images {
 		if IsImageRunning("helpernode-" + name) {
-			fmt.Println("SKIPPING: Container helpernode-" + name + " already running.")
+			logrus.Info("SKIPPING: Container helpernode-" + name + " already running.")
 		} else {
 			StartImage(image, "latest", getEncodedConfuration(), name)
 		}
 	}
 }
-
-

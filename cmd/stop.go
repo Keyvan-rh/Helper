@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -28,9 +28,8 @@ var stopCmd = &cobra.Command{
 	},
 	Use:   "stop",
 	Short: "Stops helpernode containres",
-	Long: "Stops helpernode containres",
+	Long:  "Stops helpernode containres",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Stopping services")
 		stopContainers()
 	},
 }
@@ -43,7 +42,7 @@ func stopContainers() {
 	reconcileImageList(imageList)
 	for name, _ := range images {
 		if !IsImageRunning("helpernode-" + name) {
-			fmt.Println("SKIPPING: Container helpernode-" + name + " already running.")
+			logrus.Info("SKIPPING: Container helpernode-" + name + " already stopped.")
 		} else {
 			StopImage(name)
 		}
