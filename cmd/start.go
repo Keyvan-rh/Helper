@@ -50,7 +50,7 @@ up successfully.`,
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-	startCmd.Flags().BoolP("skip-preflight", "", false, "Skips preflight checks and tries to start the containers")
+	startCmd.Flags().BoolP("skip-preflight", "s", false, "Skips preflight checks and tries to start the containers")
 
 }
 

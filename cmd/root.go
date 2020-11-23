@@ -15,7 +15,7 @@ import (
 var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command {
+var rootCmd = &cobra.Command{
 	Use:   "helpernodectl",
 	Short: "Utility for the HelperNode",
 	Long: `This cli utility is used to stop/start the HelperNode
@@ -29,7 +29,7 @@ helpernodectl start --config=helpernode.yaml`,
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	setUpLogging()
+//	setUpLogging()
 	if err := rootCmd.Execute(); err != nil {
 		logrus.Fatal(err)
 	}
@@ -69,7 +69,6 @@ func initConfig() {
 		viper.SetConfigName(".helpernodectl")
 	}
 
-
 	createImageList()
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
@@ -79,16 +78,17 @@ func initConfig() {
 }
 
 func setUpLogging() {
-    logrus.SetOutput(os.Stdout)
+	logrus.SetOutput(os.Stdout)
 	level, err := logrus.ParseLevel(logLevel)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "invalid log-level"))
 	}
 	logrus.SetLevel(level)
+	//	logrus.SetReportCaller(true)
 }
 
 //This takes what was passed as --config and writes it to $HOME/.helpernodectl.yaml
-func setDefaults(){
+func setDefaults() {
 	home, err := homedir.Dir()
 
 	if err != nil {
@@ -108,6 +108,8 @@ func setDefaults(){
 	}
 	emptyFile.Close()
 
+	testFunc()
+
 	err = viper.WriteConfig()
 	if err != nil {
 		logrus.Error("Error writing config file")
@@ -115,7 +117,7 @@ func setDefaults(){
 		logrus.Trace("Writing to:" + viper.ConfigFileUsed())
 	}
 }
-func createImageList(){
+func createImageList() {
 	viper.SetEnvPrefix("helpernode")
 	viper.BindEnv("image_prefix")
 	if viper.GetString("image_prefix") == "" {
@@ -129,16 +131,34 @@ func createImageList(){
 
 	registry = viper.GetString("image_prefix")
 
-	for _, name := range coreImageNames{
-		images[name]=registry + "/" + repository + "/"  + name
+	for _, name := range coreImageNames {
+		images[name] = registry + "/" + repository + "/" + name
 	}
 	//TODO Add pluggable images here
 
 	//Just some logic to print if in debug
 	if logrus.GetLevel().String() == "debug" {
 		logrus.Debug("Using registry : " + registry)
-		for name,image := range images {
+		for name, image := range images {
 			logrus.Debug(name + ":" + image)
 		}
 	}
+}
+
+func testFunc(){
+	var bootstrap = map[string]string{"disk": "vda", "ipaddr": "192.168.7.22", "macaddr": "52:54:00:60:72:67", "name": "bootstrap"}
+	var test Bootstrap
+	viper.SetDefault("version", "2")
+	viper.SetDefault("arch", "x86_64")
+	viper.SetDefault("bootstrap", bootstrap)
+	viper.SetDefault("test", test.name)
+
+//		viper.Set("level1", map[string][]string{"test1": {"test1", "test2"}})
+//	viper.Set("level1.level2", map[string]string{"test2": "test2"} )
+
+
+}
+
+type Bootstrap struct {
+	 name string `default:"geek"`
 }

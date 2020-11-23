@@ -65,7 +65,6 @@ func StopImage(containername string) {
 
 */
 
-
 // checking if service is running
 func isServiceRunning(servicename string) bool {
 	// check if the service is active
@@ -315,7 +314,7 @@ func validateArgs(args []string) {
 
 	//if bare start command assume "all"
 	if imageCount == 0 {
-		logrus.Debug("starting all")
+		logrus.Debug("Setting target images to all")
 		imageList = []string{"all"}
 	} else if imageCount == 1 {
 

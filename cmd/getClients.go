@@ -2,16 +2,16 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
-	"github.com/spf13/cobra"
 )
 
 // getClientsCmd represents the getClients command
 var getClientsCmd = &cobra.Command{
-	Use:   "get-clients",
+	Use:     "get-clients",
 	Aliases: []string{"getclients"},
-	Short: "Gets the needed clients from the holding container.",
+	Short:   "Gets the needed clients from the holding container.",
 	Long: `This will get the  needed clients from the holding container.
 Which is, by default, the http container. It saves this in your current
 working directory. Example:
@@ -45,26 +45,26 @@ func getTheClients(image string) {
 	// If image is NOT running, it must be started
 	if !isImageRunning("helpernode-" + image) {
 		/* Right now, just start the image the way it is with a dummy value.
-			TODO: Start the container with `sleep infinity`. Maybe build it into the startup.sh file?
+		TODO: Start the container with `sleep infinity`. Maybe build it into the startup.sh file?
 		*/
 		fmt.Println("Image helpernode-" + image + " is NOT running...starting temporarily")
-		StartImage(images[image], "latest", "bm90OiAidXNlZCIK", "http")
+		startImage(images[image], "latest", "bm90OiAidXNlZCIK", "http")
 		for _, v := range clients {
 			fmt.Println("Getting file " + v)
 			// get the artifact - should probably make a put/get function later
-			cmd, err := exec.Command("podman", "cp", "helpernode-" + image + ":" + clientpath + v ,".").Output()
+			cmd, err := exec.Command("podman", "cp", "helpernode-"+image+":"+clientpath+v, ".").Output()
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error running podman-cp command %s: %s\n", cmd, err)
 				os.Exit(253)
 			}
 		}
 		// Assume the user wants it stopped since it wasn't running
-		StopImage("http")
+		stopImage("http")
 	} else {
 		for _, v := range clients {
 			fmt.Println("Getting file " + v)
 			// get the artifact
-			cmd, err := exec.Command("podman", "cp", "helpernode-" + image + ":" + clientpath + v ,".").Output()
+			cmd, err := exec.Command("podman", "cp", "helpernode-"+image+":"+clientpath+v, ".").Output()
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error running podman-cp command %s: %s\n", cmd, err)
 				os.Exit(253)

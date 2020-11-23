@@ -39,7 +39,7 @@ func pullImage(image string, version string) {
 //TODO we need to adjust startImage to account for pluggable container that won't take the encoded file or need --net-host
 func startImage(image string, version string, encodedyaml string, containername string) {
 	logrus.Info("Starting helpernode-" + containername)
-	cmd := exec.Command(containerRuntime, "run", "--rm", "-d", "--env=HELPERPOD_CONFIG_YAML="+encodedyaml, "--net=host", "--name=helpernode-"+containername, image+":"+version, "--label " + "helperpod_" + containername + "=" + VERSION )
+	cmd := exec.Command(containerRuntime, "run", "--rm", "-d", "--env=HELPERPOD_CONFIG_YAML="+encodedyaml, "--label=helpernode-"+containername+"="+VERSION, "--net=host", "--name=helpernode-"+containername, image+":"+version)
 	runCmd(cmd)
 
 }
@@ -53,24 +53,21 @@ func stopImage(containername string) {
 	runCmd(cmd)
 
 }
+
 //check if an image is running. Return true if it is
 //TODO see if we can do this with a --filter to get it to 1 result back. This implies building the iamge with some LABEL commands
 func isImageRunning(containername string) bool {
-
-	// output of all of all running containers
-	out, err := exec.Command("podman", "ps", "--format", "{{.Names}}").Output()
+	out, err := exec.Command("podman", "ps", "--format", "{{.Names}}", "--filter=label="+containername+"="+VERSION).Output()
+	name := strings.TrimSuffix(string(out), "\n")
+	logrus.Debugf("%s is running", name)
 	if err != nil {
-		logrus.Debugf("Found %t running", out)
-		name := string(out)
-		if name == "helpernode" + containername {
+		logrus.Debug(err)
+	} else {
+		if name == containername {
+			logrus.Debugf("Found %s to stop", name)
 			return true
 		}
 	}
-/*
-	// create a slice of string based on the output, trimming the newline first and splitting on "\n" (space)
-	//TODO do we need  find() or do we tag the image and look for it directly
-	s := strings.Split(strings.TrimSuffix(string(cmd), "\n"), "\n")
-	_, found := find(s, containername)
-	return found */
-}
 
+	return false
+}
