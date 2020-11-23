@@ -287,11 +287,22 @@ func reconcileImageList(list []string) {
 			delete(images, disabledServices[name])
 		}
 	} else {
-		// else we need to start with images and delete
-		//  if images[name] == list[0] then do nothing else delete
-		for _, name := range list {
+		//create a new list from our args
+		var subsetOfServices = make(map[string]string)
+
+		for _,name := range list {
+			subsetOfServices[name] = images[name]
+		}
+	/*	for name, image := range images {
+			logrus.Debug("Checking " + name + ":" + image)
 			if _, exists := images[name]; !exists {
+				logrus.Debug("Deleting name: " + name + "from list")
 				delete(images, images[name])
+			}
+		}*/
+		if logrus.GetLevel().String() == "debug" {
+			for name,image := range subsetOfServices {
+				logrus.Debug("Subset: " + name + ":" + image)
 			}
 		}
 	}

@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -32,6 +33,11 @@ var installCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		fmt.Println("called install")
+		if logrus.GetLevel().String() == "debug" {
+			for _,name := range imageList {
+				logrus.Debug("Starting: " + name)
+			}
+		}
 	},
 }
 

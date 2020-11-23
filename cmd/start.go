@@ -56,6 +56,11 @@ func init() {
 }
 
 func runContainers() {
+	if logrus.GetLevel().String() == "debug" {
+		for _,name := range imageList {
+			logrus.Debug("Starting: " + name)
+		}
+	}
 	reconcileImageList(imageList)
 	for name, image := range images {
 		if IsImageRunning("helpernode-" + name) {
