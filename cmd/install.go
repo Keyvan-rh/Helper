@@ -16,17 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/sirupsen/logrus"
+	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
 )
-
-
-var filename string
-
-var helpme HelpMe
 
 // installCmd represents the install command
 var installCmd = &cobra.Command{
@@ -35,7 +27,7 @@ var installCmd = &cobra.Command{
 	Long: `Install creates pulls images and sets up initial ~/.helpernodectl.yaml config file`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		readFile()
+		fmt.Println("called install")
 	},
 }
 
@@ -44,18 +36,3 @@ func init() {
 }
 
 
-func readFile(){
-	yamlFile, err := ioutil.ReadFile(cfgFile)
-	if err != nil {
-		logrus.Error(err)
-	}
-	err = yaml.Unmarshal(yamlFile, &helpme)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	for name, image := range images {
-		if(viper.GetBool("a_runtime." + name)) {
-			PullImage(image, DEFAULTTAG)
-		}
-	}
-}

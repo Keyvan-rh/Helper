@@ -1,8 +1,12 @@
 package cmd
 
 import (
+	"bufio"
+	"encoding/base64"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -268,27 +272,72 @@ func verifyFirewallCommand() {
 	}
 }
 
-
-func reconcileImageList()  {
-	//TODO verify if there is a HELPERNODE_IMAGE_PREFIX environment variable
-	//TODO Viper reads in ENV variables so not sure if there is a benefit for that way or this. Just adding this to research it.
-	if len(os.Getenv("HELPERNODE_IMAGE_PREFIX")) > 0 {
-		// Define images and their registry location based on the env var
-		imageprefix := os.Getenv("HELPERNODE_IMAGE_PREFIX")
-		images = map[string]string {
-			"dns": imageprefix + "/helpernode/dns",
-			"dhcp": imageprefix + "/helpernode/dhcp",
-			"http": imageprefix + "/helpernode/http",
-			"loadbalancer": imageprefix + "/helpernode/loadbalancer",
-			"pxe": imageprefix + "/helpernode/pxe",
-		}
-	}
+//This reconciles a list of images to start or stop
+//defaults to all images unless specifically
+func reconcileImageList(list []string) {
 
 	disabledServices := viper.GetStringSlice("disabledServices")
-	for name  := range disabledServices {
-		delete(images, disabledServices[name])
+
+	//use cases
+	//all is implied so need to remove disabledServices
+	if list[0]=="all"{
+		//lets remove any disabled images
+		for name  := range disabledServices {
+			delete(images, disabledServices[name])
+		}
+	} else {
+	// else we need to start with images and delete
+	//  if images[name] == list[0] then do nothing else delete
+		for _, name := range list{
+			if _, exists := images[name]; !exists {
+				delete(images, images[name])
+			}
+		}
 	}
-	//TODO Add code for pluginServices
+	//TODO
+	//add plugable images
 }
 
+func getEncodedConfuration() string {
+	// Check to see if file exists
+	logrus.Trace("Config file used: " + viper.ConfigFileUsed())
+	var encoded string
+	configurationFile:=viper.ConfigFileUsed()
+	if _, err := os.Stat(viper.ConfigFileUsed()); os.IsNotExist(err) {
+		fmt.Println("File " + configurationFile + " does not exist")
+	} else {
+		// Open file on disk
+		f, _ := os.Open(configurationFile)
+		// Read file into a byte slice
+		reader := bufio.NewReader(f)
+		content, _ := ioutil.ReadAll(reader)
+		//Encode to base64
+		encoded = base64.StdEncoding.EncodeToString(content)
+	}
+	return encoded
+}
+func validateArgs(args []string){
+	imageCount := len(args)
 
+	//if bare start command assume "all"
+	if imageCount == 0 {
+		imageList = []string{"all"}
+	} else if imageCount == 1 {
+		//parse image list
+		imageList = strings.Split(args[0], ",")
+
+		//TODO make sure plugable images is added to images var
+		//Lets make sure its in our list of images (should include pluggable images)
+		for _, name := range imageList {
+			if _, exists := images[name]; exists {
+				continue
+			} else {
+				logrus.Fatal("Listed service is not part of image list ")
+			}
+
+		}
+	} else {
+		logrus.Fatal("Wrong number of arguments passed. Must be comma separated list")
+	}
+
+}

@@ -8,15 +8,9 @@ import (
 	"os/exec"
 )
 
-//going to covert this to use the podman module in the future
-func PullImage(image string, version string){
-
-	fmt.Println("Pulling: " + image + ":" + version)
-	//TODO Need to write the output for the image pull
-	cmd := exec.Command(containerRuntime, "pull", image + ":" + version)
-	runCmd(cmd)
-}
-
+//used by all commands to print output meaningfully
+//logs as Info
+//TODO maybe see if can bundle up a list of cmds to run
 func runCmd(cmd *exec.Cmd ){
 	stderr, _ := cmd.StderrPipe()
 	if err := cmd.Start(); err != nil {
@@ -26,47 +20,45 @@ func runCmd(cmd *exec.Cmd ){
 	scanner := bufio.NewScanner(stderr)
 	for scanner.Scan() {
 		m := scanner.Text()
-		fmt.Println(m)
+		logrus.Info(m)
 	}
 	cmd.Wait()
 }
+//going to covert this to use the podman module in the future
+func PullImage(image string, version string){
+
+	fmt.Println("Pulling: " + image + ":" + version)
+	//TODO Need to write the output for the image pull
+	cmd := exec.Command(containerRuntime, "pull", image + ":" + version)
+	runCmd(cmd)
+}
+
 
 //going to covert this to use the podman module in the future
+//TODO clean up this to just take one string. build the string elsewhere
 func StartImage(image string, version string, encodedyaml string, containername string){
-
-	/* TODO:
-		- Need to write the output for the image run
-		- Check if the image is already running
-	*/
-	_, err := exec.Command(containerRuntime, "run", "-d", "--env=HELPERPOD_CONFIG_YAML=" + encodedyaml, "--net=host", "--name=helpernode-" + containername, image + ":" + version).Output()
-	if err != nil {
-		fmt.Println(err)
-	//		fmt.Println(cmd)
-	}
+	//TODO check if image is runnign here rather than in start.go
+	logrus.Info("Starting helpernode-" + containername)
+	cmd := exec.Command(containerRuntime, "run", "-d", "--env=HELPERPOD_CONFIG_YAML=" + encodedyaml, "--net=host", "--name=helpernode-" + containername, image + ":" + version)
+	runCmd(cmd)
 
 }
 
 //going to covert this to use the podman module in the future
 func StopImage(containername string){
 
-	fmt.Println("Stopping: helpernode-" + containername)
-	/* TODO:
-		- Need to write the output for the image run
-		- Check if service is already stopped
-	*/
-	// First, stop container
-	exec.Command(containerRuntime, "stop", "helpernode-" + containername).Output()
+	logrus.Info("Stopping: helpernode-" + containername)
+	//TODO check if image is runnign here rather than in start.go
+	cmd := exec.Command(containerRuntime, "stop", "helpernode-" + containername)
+	runCmd(cmd)
 	// Then, rm the container so we can reuse the name afterwards
-	rmcmd, err := exec.Command(containerRuntime, "rm", "--force", "helpernode-" + containername).Output()
-	if err != nil {
-		fmt.Println(err)
-		fmt.Println(rmcmd)
-	}
+	rmCmd := exec.Command(containerRuntime, "rm", "--force", "helpernode-" + containername)
+	runCmd(rmCmd)
 
 }
 
 /*
-//TODO  look at this function
+//TODO  look at this function its from kind
 // pull pulls an image, retrying up to retries times
 func pull(logger log.Logger, image string, retries int) error {
 	logger.V(1).Infof("Pulling image: %s ...", image)

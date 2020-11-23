@@ -38,6 +38,8 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	//this is really only here for testing the code on a mac
+	//helpernodectl is not currently supported on macOS
 	if runtime.GOOS != "darwin" {
 		verifyContainerRuntime()
 		verifyFirewallCommand()
@@ -46,19 +48,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.helpernodectl.yaml)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info", "log level (e.g. \"debug | info | warn | error\")")
 
-
-	//TODO Viper reads in ENV variables so not sure if there is a benefit for that way or this. Just adding this to research it.
-	if len(os.Getenv("HELPERNODE_IMAGE_PREFIX")) > 0 {
-		// Define images and their registry location based on the env var
-		imageprefix := os.Getenv("HELPERNODE_IMAGE_PREFIX")
-		images = map[string]string {
-			"dns": imageprefix + "/helpernode/dns",
-			"dhcp": imageprefix + "/helpernode/dhcp",
-			"http": imageprefix + "/helpernode/http",
-			"loadbalancer": imageprefix + "/helpernode/loadbalancer",
-			"pxe": imageprefix + "/helpernode/pxe",
-		}
-	}
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -80,20 +69,15 @@ func initConfig() {
 		viper.SetConfigName(".helpernodectl")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
 
+	createImageList()
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		logrus.Trace("Using config file:", viper.ConfigFileUsed())
 	}
-
-
 	setDefaults()
-	//TODO need to move this to start/stop or actions that need the image list
-	reconcileImageList()
-
-
 }
+
 func setUpLogging() {
     logrus.SetOutput(os.Stdout)
 	level, err := logrus.ParseLevel(logLevel)
@@ -105,7 +89,6 @@ func setUpLogging() {
 
 //This takes what was passed as --config and writes it to $HOME/.helpernodectl.yaml
 func setDefaults(){
-//	fmt.Println("root.go:setDefaults() called from root.go:initConfig()")
 	home, err := homedir.Dir()
 
 	if err != nil {
@@ -131,5 +114,31 @@ func setDefaults(){
 	} else {
 		logrus.Trace("Writing to:" + viper.ConfigFileUsed())
 	}
+}
+func createImageList(){
+	viper.SetEnvPrefix("helpernode")
+	viper.BindEnv("image_prefix")
+	if viper.GetString("image_prefix") == "" {
+		logrus.Debug("HELPERNODE_IMAGE_PREFIX not found. using quay.io")
+		viper.Set("image_prefix", "quay.io")
+	} else {
+		logrus.Debug("here")
+	}
 
+	viper.AutomaticEnv() // read in environment variables that match
+
+	registry = viper.GetString("image_prefix")
+
+	for _, name := range coreImageNames{
+		images[name]=registry + "/" + repository + "/"  + name
+	}
+	//TODO Add pluggable images here
+
+	//Just some logic to print if in debug
+	if logrus.GetLevel().String() == "debug" {
+		logrus.Debug("Using registry : " + registry)
+		for name,image := range images {
+			logrus.Debug(name + ":" + image)
+		}
+	}
 }

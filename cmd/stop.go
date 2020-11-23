@@ -18,11 +18,14 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // stopCmd represents the stop command
 var stopCmd = &cobra.Command{
+	Args: func(cmd *cobra.Command, args []string) error {
+		validateArgs(args)
+		return nil
+	},
 	Use:   "stop",
 	Short: "Stops helpernode containres",
 	Long: "Stops helpernode containres",
@@ -37,11 +40,12 @@ func init() {
 }
 
 func stopContainers() {
+	reconcileImageList(imageList)
 	for name, _ := range images {
-		if (viper.GetBool("a_runtime." + name)) {
-			fmt.Println("Stopping: " + name)
+		if !IsImageRunning("helpernode-" + name) {
+			fmt.Println("SKIPPING: Container helpernode-" + name + " already running.")
+		} else {
 			StopImage(name)
 		}
 	}
-
 }
