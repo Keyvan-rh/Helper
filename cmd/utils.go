@@ -290,10 +290,11 @@ func reconcileImageList(list []string) {
 		//create a new list from our args
 		var subsetOfServices = make(map[string]string)
 
-		for _,name := range list {
+		for _, name := range list {
 			subsetOfServices[name] = images[name]
 		}
-	/*	for name, image := range images {
+		images = subsetOfServices
+		/*	for name, image := range images {
 			logrus.Debug("Checking " + name + ":" + image)
 			if _, exists := images[name]; !exists {
 				logrus.Debug("Deleting name: " + name + "from list")
@@ -301,7 +302,7 @@ func reconcileImageList(list []string) {
 			}
 		}*/
 		if logrus.GetLevel().String() == "debug" {
-			for name,image := range subsetOfServices {
+			for name, image := range subsetOfServices {
 				logrus.Debug("Subset: " + name + ":" + image)
 			}
 		}

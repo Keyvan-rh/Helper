@@ -1,6 +1,5 @@
 package cmd
 
-
 import (
 	"bufio"
 	"fmt"
@@ -11,7 +10,7 @@ import (
 //used by all commands to print output meaningfully
 //logs as Info
 //TODO maybe see if can bundle up a list of cmds to run
-func runCmd(cmd *exec.Cmd ){
+func runCmd(cmd *exec.Cmd) {
 	stderr, _ := cmd.StderrPipe()
 	if err := cmd.Start(); err != nil {
 		logrus.Fatal(err)
@@ -24,36 +23,33 @@ func runCmd(cmd *exec.Cmd ){
 	}
 	cmd.Wait()
 }
+
 //going to covert this to use the podman module in the future
-func PullImage(image string, version string){
+func PullImage(image string, version string) {
 
 	fmt.Println("Pulling: " + image + ":" + version)
 	//TODO Need to write the output for the image pull
-	cmd := exec.Command(containerRuntime, "pull", image + ":" + version)
+	cmd := exec.Command(containerRuntime, "pull", image+":"+version)
 	runCmd(cmd)
 }
-
 
 //going to covert this to use the podman module in the future
 //TODO clean up this to just take one string. build the string elsewhere
-func StartImage(image string, version string, encodedyaml string, containername string){
+func StartImage(image string, version string, encodedyaml string, containername string) {
 	//TODO check if image is runnign here rather than in start.go
 	logrus.Info("Starting helpernode-" + containername)
-	cmd := exec.Command(containerRuntime, "run", "-d", "--env=HELPERPOD_CONFIG_YAML=" + encodedyaml, "--net=host", "--name=helpernode-" + containername, image + ":" + version)
+	cmd := exec.Command(containerRuntime, "run", "--rm", "-d", "--env=HELPERPOD_CONFIG_YAML="+encodedyaml, "--net=host", "--name=helpernode-"+containername, image+":"+version)
 	runCmd(cmd)
 
 }
 
 //going to covert this to use the podman module in the future
-func StopImage(containername string){
+func StopImage(containername string) {
 
 	logrus.Info("Stopping: helpernode-" + containername)
 	//TODO check if image is runnign here rather than in start.go
-	cmd := exec.Command(containerRuntime, "stop", "helpernode-" + containername)
+	cmd := exec.Command(containerRuntime, "stop", "helpernode-"+containername)
 	runCmd(cmd)
-	// Then, rm the container so we can reuse the name afterwards
-	rmCmd := exec.Command(containerRuntime, "rm", "--force", "helpernode-" + containername)
-	runCmd(rmCmd)
 
 }
 
@@ -77,4 +73,4 @@ func pull(logger log.Logger, image string, retries int) error {
 	}
 	return errors.Wrapf(err, "failed to pull image %q", image)
 }
- */
+*/
