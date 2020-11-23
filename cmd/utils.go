@@ -261,7 +261,6 @@ func reconcileImageList(list []string) {
 
 	disabledServices := viper.GetStringSlice("disabledServices")
 
-	//use cases
 	//all is implied so need to remove disabledServices
 	if list[0] == "all" {
 		//lets remove any disabled images

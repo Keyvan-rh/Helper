@@ -23,7 +23,6 @@ import (
 var startCmd = &cobra.Command{
 	Args: func(cmd *cobra.Command, args []string) error {
 		validateArgs(args)
-		logrus.Debug("args: " + args[0])
 		return nil
 	},
 	Use:   "start",
@@ -56,12 +55,12 @@ func init() {
 }
 
 func runContainers() {
+	reconcileImageList(imageList)
 	if logrus.GetLevel().String() == "debug" {
-		for _,name := range imageList {
+		for _, name := range imageList {
 			logrus.Debug("Starting: " + name)
 		}
 	}
-	reconcileImageList(imageList)
 	for name, image := range images {
 		if isImageRunning("helpernode-" + name) {
 			logrus.Info("SKIPPING: Container helpernode-" + name + " already running.")
