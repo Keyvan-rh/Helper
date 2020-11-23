@@ -57,7 +57,7 @@ func init() {
 func copyIgnToWebServer(dir string) {
 
 	//if the webserver isn't running, don't bother running
-	if !IsImageRunning("helpernode-http") {
+	if !isImageRunning("helpernode-http") {
 		fmt.Fprintf(os.Stderr, "ERROR: helpernode-http isn't running\n")
 		os.Exit(253)
 	}

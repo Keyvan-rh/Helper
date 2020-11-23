@@ -31,7 +31,7 @@ func PullImage(image string, version string) {
 */
 // Find takes a slice and looks for an element in it. If found it will
 // return it's key, otherwise it will return -1 and a bool of false.
-func Find(slice []string, val string) (int, bool) {
+func find(slice []string, val string) (int, bool) {
 	for i, item := range slice {
 		if item == val {
 			return i, true
@@ -65,27 +65,9 @@ func StopImage(containername string) {
 
 */
 
-//check if an image is running. Return true if it is
-//TODO see if we can do this with a --filter to get it to 1 result back. This implies building the iamge with some LABEL commands
-func IsImageRunning(containername string) bool {
-
-	// output of all of all running containers
-	cmd, err := exec.Command("podman", "ps", "--format", "{{.Names}}").Output()
-
-	// check for error
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error running command %s: %s\n", cmd, err)
-		os.Exit(253)
-	}
-
-	// create a slice of string based on the output, trimming the newline first and splitting on "\n" (space)
-	s := strings.Split(strings.TrimSuffix(string(cmd), "\n"), "\n")
-	_, found := Find(s, containername)
-	return found
-}
 
 // checking if service is running
-func IsServiceRunning(servicename string) bool {
+func isServiceRunning(servicename string) bool {
 	// check if the service is active
 	activestate, err := exec.Command("systemctl", "show", "-p", "ActiveState", servicename).Output()
 	if err != nil {
@@ -98,7 +80,7 @@ func IsServiceRunning(servicename string) bool {
 }
 
 // checking if service is running
-func IsServiceEnabled(servicename string) bool {
+func isServiceEnabled(servicename string) bool {
 	// check if the service is active
 	enabledstate, err := exec.Command("systemctl", "is-enabled", servicename).Output()
 	if err != nil {
@@ -111,10 +93,10 @@ func IsServiceEnabled(servicename string) bool {
 }
 
 // stopping service
-func StopService(servicename string) {
+func stopService(servicename string) {
 
 	// stop the service only if it's running
-	if IsServiceRunning(servicename) {
+	if isServiceRunning(servicename) {
 		fmt.Println("Stopping service: " + servicename)
 		//Stop the service with systemd
 		cmd, err := exec.Command("systemctl", "stop", servicename).Output()
@@ -127,10 +109,10 @@ func StopService(servicename string) {
 }
 
 // stopping service
-func StartService(servicename string) {
+func startService(servicename string) {
 
 	// start the service only if it isn't running
-	if !IsServiceRunning(servicename) {
+	if !isServiceRunning(servicename) {
 		fmt.Println("Starting service: " + servicename)
 		//Start the service with systemd
 		cmd, err := exec.Command("systemctl", "start", servicename).Output()
@@ -143,10 +125,10 @@ func StartService(servicename string) {
 }
 
 // disable service
-func DisableService(servicename string) {
+func disableService(servicename string) {
 
 	// Disable only if it needs to be
-	if IsServiceEnabled(servicename) {
+	if isServiceEnabled(servicename) {
 		fmt.Println("Disabling service: " + servicename)
 		//Stop the service with systemd
 		cmd, err := exec.Command("systemctl", "disable", servicename).Output()
@@ -159,10 +141,10 @@ func DisableService(servicename string) {
 }
 
 // enable service
-func EnableService(servicename string) {
+func enableService(servicename string) {
 
 	// Enable only if it needs to be
-	if !IsServiceEnabled(servicename) {
+	if !isServiceEnabled(servicename) {
 		fmt.Println("Enabling service: " + servicename)
 		//enable the service with systemd
 		cmd, err := exec.Command("systemctl", "enable", servicename).Output()
@@ -175,7 +157,7 @@ func EnableService(servicename string) {
 }
 
 // get current firewalld rules and return as a slice of string
-func GetCurrentFirewallRules() []string {
+func getCurrentFirewallRules() []string {
 
 	// get list of ports currently configured
 	cmd, err := exec.Command("firewall-cmd", "--list-ports").Output()
@@ -232,7 +214,7 @@ func GetCurrentFirewallRules() []string {
 	return s
 }
 
-func OpenPort(port string) {
+func openPort(port string) {
 
 	// Open Ports using the port number
 	cmd, err := exec.Command("firewall-cmd", "--add-port", port, "--permanent", "-q").Output()

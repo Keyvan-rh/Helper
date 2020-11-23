@@ -103,13 +103,13 @@ func systemdCheck(fix bool) {
 	// set the error count to 0
 	svcerrorcount := 0
 	for _, s := range systemdsvc {
-		if IsServiceRunning(s) {
+		if isServiceRunning(s) {
 			fmt.Println("WARNING: Service " + s + " is running")
 			svcerrorcount += 1
 			if fix {
 				fmt.Println("STOPPING/DISABLING SERVICE: " + s)
-				StopService(s)
-				DisableService(s)
+				stopService(s)
+				disableService(s)
 			}
 		}
 	}
@@ -126,29 +126,29 @@ func firewallRulesCheck(fix bool) {
 	fwerrorcount := 0
 
 	// Check if firewalld service is running
-	if !IsServiceRunning("firewalld.service") {
+	if !isServiceRunning("firewalld.service") {
 		fwerrorcount += 1
 		fmt.Println("WARNING: Service firewalld.service is NOT running")
 		if fix {
-			StartService("firewalld.service")
-			EnableService("firewalld.service")
+			startService("firewalld.service")
+			enableService("firewalld.service")
 		}
 	}
 
 	// get the current firewall rules on the host and set it to "s"
-	s := GetCurrentFirewallRules()
+	s := getCurrentFirewallRules()
 
 	// loop through each firewall rule:
 	// If there's a match, that means the rule is there and nothing needs to be done.
 	// If it's NOT there, it needs to be enabled (if requested)
 	for _, f := range fwrule {
-		_, found := Find(s, f)
+		_, found := find(s, f)
 		if !found {
 			fmt.Println("Firewall rule " + f + " not found!")
 			fwerrorcount += 1
 			if fix {
 				fmt.Println("OPENING PORT: " + f)
-				OpenPort(f)
+				openPort(f)
 			}
 		}
 	}

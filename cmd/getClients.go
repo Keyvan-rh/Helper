@@ -43,7 +43,7 @@ func getTheClients(image string) {
 	clientpath := "/var/www/html/artifacts/"
 
 	// If image is NOT running, it must be started
-	if !IsImageRunning("helpernode-" + image) {
+	if !isImageRunning("helpernode-" + image) {
 		/* Right now, just start the image the way it is with a dummy value.
 			TODO: Start the container with `sleep infinity`. Maybe build it into the startup.sh file?
 		*/

@@ -1,10 +1,5 @@
 package cmd
 
-import (
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-)
-
 //TODO finalize version
 const VERSION string = "4.6"
 
@@ -21,27 +16,6 @@ var logLevel string
 
 //TODO figure out how to not have this as a global var
 var imageList []string //this is used in start/stop
-
-
-//TODO remove probably
-/*
-type HelpMe struct {
-	Runtime  Runtime    `yaml:"a_runtime"`
-
-}
-type Runtime struct {
-	dns string `yaml:"dns"`
-	dhcp string `yaml:"dhcp"`
-	http string `yaml:"http"`
-	loadbalancer string `yaml:"loadbalancer"`
-	pxe string `yaml:"pxe"`
-}
-type Service struct {
-	Service string `yaml:"service"`
-	Run bool `yaml:"run"`
-}
-
- */
 
 // Define ports needed for preflight check
 var ports = [10]string{
@@ -98,12 +72,14 @@ var clients = map[string]string {
 	"openshift-install": "openshift-install-linux.tar.gz",
 	"helm": "helm.tar.gz",
 }
+/*
+//TODO Remove this after testing
+
 func init(){
-	//TODO this is a big todo
  	//Lets configure a good list of images to include pluggable images
 	logrus.Debug("Building image list with registry:" + registry)
 	registry = viper.GetString("image_prefix")
 	for _, name := range coreImageNames{
 	 	images[name]=registry + "/" + repository + "/"  + name
 	}
-}
+} */

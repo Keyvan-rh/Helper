@@ -41,10 +41,10 @@ func init() {
 func stopContainers() {
 	reconcileImageList(imageList)
 	for name, _ := range images {
-		if !IsImageRunning("helpernode-" + name) {
+		if !isImageRunning("helpernode-" + name) {
 			logrus.Info("SKIPPING: Container helpernode-" + name + " already stopped.")
 		} else {
-			StopImage(name)
+			stopImage(name)
 		}
 	}
 }

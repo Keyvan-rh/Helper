@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"os/exec"
+	"strings"
 )
 
 //used by all commands to print output meaningfully
@@ -25,7 +26,7 @@ func runCmd(cmd *exec.Cmd) {
 }
 
 //going to covert this to use the podman module in the future
-func PullImage(image string, version string) {
+func pullImage(image string, version string) {
 
 	fmt.Println("Pulling: " + image + ":" + version)
 	//TODO Need to write the output for the image pull
@@ -35,16 +36,16 @@ func PullImage(image string, version string) {
 
 //going to covert this to use the podman module in the future
 //TODO clean up this to just take one string. build the string elsewhere
-func StartImage(image string, version string, encodedyaml string, containername string) {
-	//TODO check if image is runnign here rather than in start.go
+//TODO we need to adjust startImage to account for pluggable container that won't take the encoded file or need --net-host
+func startImage(image string, version string, encodedyaml string, containername string) {
 	logrus.Info("Starting helpernode-" + containername)
-	cmd := exec.Command(containerRuntime, "run", "--rm", "-d", "--env=HELPERPOD_CONFIG_YAML="+encodedyaml, "--net=host", "--name=helpernode-"+containername, image+":"+version)
+	cmd := exec.Command(containerRuntime, "run", "--rm", "-d", "--env=HELPERPOD_CONFIG_YAML="+encodedyaml, "--net=host", "--name=helpernode-"+containername, image+":"+version, "--label " + "helperpod_" + containername + "=" + VERSION )
 	runCmd(cmd)
 
 }
 
 //going to covert this to use the podman module in the future
-func StopImage(containername string) {
+func stopImage(containername string) {
 
 	logrus.Info("Stopping: helpernode-" + containername)
 	//TODO check if image is runnign here rather than in start.go
@@ -52,25 +53,24 @@ func StopImage(containername string) {
 	runCmd(cmd)
 
 }
+//check if an image is running. Return true if it is
+//TODO see if we can do this with a --filter to get it to 1 result back. This implies building the iamge with some LABEL commands
+func isImageRunning(containername string) bool {
 
-/*
-//TODO  look at this function its from kind
-// pull pulls an image, retrying up to retries times
-func pull(logger log.Logger, image string, retries int) error {
-	logger.V(1).Infof("Pulling image: %s ...", image)
-	err := exec.Command("podman", "pull", image).Run()
-	// retry pulling up to retries times if necessary
+	// output of all of all running containers
+	out, err := exec.Command("podman", "ps", "--format", "{{.Names}}").Output()
 	if err != nil {
-		for i := 0; i < retries; i++ {
-			time.Sleep(time.Second * time.Duration(i+1))
-			logger.V(1).Infof("Trying again to pull image: %q ... %v", image, err)
-			// TODO(bentheelder): add some backoff / sleep?
-			err = exec.Command("podman", "pull", image).Run()
-			if err == nil {
-				break
-			}
+		logrus.Debugf("Found %t running", out)
+		name := string(out)
+		if name == "helpernode" + containername {
+			return true
 		}
 	}
-	return errors.Wrapf(err, "failed to pull image %q", image)
+/*
+	// create a slice of string based on the output, trimming the newline first and splitting on "\n" (space)
+	//TODO do we need  find() or do we tag the image and look for it directly
+	s := strings.Split(strings.TrimSuffix(string(cmd), "\n"), "\n")
+	_, found := find(s, containername)
+	return found */
 }
-*/
+

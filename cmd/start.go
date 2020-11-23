@@ -63,10 +63,10 @@ func runContainers() {
 	}
 	reconcileImageList(imageList)
 	for name, image := range images {
-		if IsImageRunning("helpernode-" + name) {
+		if isImageRunning("helpernode-" + name) {
 			logrus.Info("SKIPPING: Container helpernode-" + name + " already running.")
 		} else {
-			StartImage(image, "latest", getEncodedConfuration(), name)
+			startImage(image, "latest", getEncodedConfuration(), name)
 		}
 	}
 }
