@@ -1,5 +1,4 @@
-version: v2
-arch: "x86_64"
+arch: x86_64
 bootstrap:
   disk: vda
   ipaddr: 192.168.7.20
@@ -39,6 +38,7 @@ other:
 - ipaddr: 192.168.7.31
   macaddr: 52:54:00:f4:2e:2e
   name: non-cluster-vm
+version: v2
 workers:
 - disk: vda
   ipaddr: 192.168.7.11

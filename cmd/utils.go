@@ -245,6 +245,7 @@ func reconcileImageList(list []string) {
 	//TODO add plugable images
 }
 
+//TODO need to update this to use helperconfig
 func getEncodedConfuration() string {
 	// Check to see if file exists
 	logrus.Trace("Config file used: " + viper.ConfigFileUsed())
@@ -289,6 +290,14 @@ func validateArgs(args []string) {
 		}
 	} else {
 		logrus.Fatal("Wrong number of arguments passed. Must be comma separated list")
+	}
+
+}
+func verifyConfig(){
+	if !helpernodectlConfig.IsSet("configFile") &&  !rootCmd.PersistentFlags().Changed("config")  {
+		logrus.Fatal("Config file was not passed or has a previous save")
+	}else{
+		logrus.Info("Found a configuration")
 	}
 
 }

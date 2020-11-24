@@ -37,6 +37,7 @@ Examples:
 This manifest should have all the information the services need to start
 up successfully.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		verifyConfig()
 		skippreflight, _ := cmd.Flags().GetBool("skip-preflight")
 		if skippreflight {
 			logrus.Info("Skipping Preflightchecks\n======================\n")

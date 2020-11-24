@@ -32,6 +32,12 @@ var installCmd = &cobra.Command{
 	Long:  `Install creates pulls images and sets up initial ~/.helpernodectl.yaml config file`,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		verifyConfig()
+		/*if rootCmd.PersistentFlags().Changed("config")  {
+			logrus.Info("config file changed...i.e. it was passed")
+		}else{
+			logrus.Info("config file was not passed")
+		}*/
 		fmt.Println("called install")
 		if logrus.GetLevel().String() == "debug" {
 			for _,name := range imageList {

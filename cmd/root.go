@@ -50,7 +50,7 @@ func init() {
 		verifyContainerRuntime()
 		verifyFirewallCommand()
 	}
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.helpernodectl.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.helpernodectl.yaml)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info", "log level (e.g. \"debug | info | warn | error\")")
 
 }
@@ -78,7 +78,7 @@ func setupCtlConfig(){
 	helpernodectlConfig.SetConfigType("yaml")
 
 	helpernodectlConfig.SetDefault("services",map[string]bool{"dns" : true, "dhcp": true, "http": true, "loadbalancer": true, "pxe":true}  )
-	helpernodectlConfig.SetDefault("configFile", home + "/.helpernodectl.yaml")
+//	helpernodectlConfig.SetDefault("configFile", home + "/.helpernodectl.yaml")
 	if err := helpernodectlConfig.ReadInConfig(); err != nil {
 		//we got an error trying to read the config
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
@@ -132,7 +132,7 @@ func setupHelperConfig(){
 		//we got an error trying to read the config
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			//our error was a ConfigFileNotFound error. Lets try to create it
-			logrus.Fatal("Could not find the configuration file")
+			logrus.Debug("Could not find the configuration file")
 		} else {
 			//we could not read the file but it wasn't a ConfigNotFound error
 			logrus.Debugf("We got the following error trying to read in file %s", err)
@@ -161,6 +161,7 @@ func createImageList() {
 	} else {
 		logrus.Debug("Using quay.io as the registry")
 	}
+
 
 	helpernodectlConfig.AutomaticEnv() // read in environment variables that match
 
