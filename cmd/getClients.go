@@ -1,9 +1,8 @@
 package cmd
 
 import (
-	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"os"
 	"os/exec"
 )
 
@@ -47,28 +46,22 @@ func getTheClients(image string) {
 		/* Right now, just start the image the way it is with a dummy value.
 		TODO: Start the container with `sleep infinity`. Maybe build it into the startup.sh file?
 		*/
-		fmt.Println("Image helpernode-" + image + " is NOT running...starting temporarily")
+		logrus.Info("Image helpernode-" + image + " is NOT running...starting temporarily")
 		startImage(images[image], "latest", "bm90OiAidXNlZCIK", "http")
 		for _, v := range clients {
-			fmt.Println("Getting file " + v)
+			logrus.Info("Getting file " + v)
 			// get the artifact - should probably make a put/get function later
-			cmd, err := exec.Command("podman", "cp", "helpernode-"+image+":"+clientpath+v, ".").Output()
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error running podman-cp command %s: %s\n", cmd, err)
-				os.Exit(253)
-			}
+			cmd := exec.Command("podman", "cp", "helpernode-"+image+":"+clientpath+v, ".")
+			runCmd(cmd)
 		}
 		// Assume the user wants it stopped since it wasn't running
 		stopImage("http")
 	} else {
 		for _, v := range clients {
-			fmt.Println("Getting file " + v)
+			logrus.Info("Getting file " + v)
 			// get the artifact
-			cmd, err := exec.Command("podman", "cp", "helpernode-"+image+":"+clientpath+v, ".").Output()
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error running podman-cp command %s: %s\n", cmd, err)
-				os.Exit(253)
-			}
+			cmd := exec.Command("podman", "cp", "helpernode-"+image+":"+clientpath+v, ".")
+			runCmd(cmd)
 		}
 	}
 }

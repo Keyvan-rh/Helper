@@ -3,12 +3,7 @@ package cmd
 //TODO finalize version
 const VERSION string = "4.6"
 
-//TODO probably can delete this and use VERSION
-const DEFAULTTAG string = "latest"
-
 var coreImageNames = []string{"dns", "dhcp", "http", "loadbalancer","pxe"}
-var imageName string
-var imageVersion string
 var containerRuntime string = "podman"
 var repository string = "helpernode"
 var registry string = "quay.io"
@@ -72,14 +67,3 @@ var clients = map[string]string {
 	"openshift-install": "openshift-install-linux.tar.gz",
 	"helm": "helm.tar.gz",
 }
-/*
-//TODO Remove this after testing
-
-func init(){
- 	//Lets configure a good list of images to include pluggable images
-	logrus.Debug("Building image list with registry:" + registry)
-	registry = viper.GetString("image_prefix")
-	for _, name := range coreImageNames{
-	 	images[name]=registry + "/" + repository + "/"  + name
-	}
-} */

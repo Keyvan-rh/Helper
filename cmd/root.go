@@ -7,12 +7,18 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 	"runtime"
 )
 
 var cfgFile string
+
+//This is the configuration passed into each container
+var	helperConfig = viper.New()
+
+//Used to store tool related configurations like what services to start/stop by default
+//most importantly it stores the location of the helpernodeConfig file if set
+var helpernodectlConfig = viper.New()
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -44,7 +50,6 @@ func init() {
 		verifyContainerRuntime()
 		verifyFirewallCommand()
 	}
-
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.helpernodectl.yaml)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info", "log level (e.g. \"debug | info | warn | error\")")
 
@@ -52,11 +57,65 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+
 	setUpLogging()
+	setupCtlConfig()
+	setupHelperConfig()
+	createImageList()
+
+}
+
+func setupCtlConfig(){
+	//Used to store tool related configurations like what services to start/stop by default
+	//most importantly it stores the location of the helpernodeConfig file if set
+
+	home, err := homedir.Dir()
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	helpernodectlConfig.AddConfigPath(home)
+	helpernodectlConfig.SetConfigName(".helpernodectl")
+	helpernodectlConfig.SetConfigType("yaml")
+
+	helpernodectlConfig.SetDefault("services",map[string]bool{"dns" : true, "dhcp": true, "http": true, "loadbalancer": true, "pxe":true}  )
+	helpernodectlConfig.SetDefault("configFile", home + "/.helpernodectl.yaml")
+	if err := helpernodectlConfig.ReadInConfig(); err != nil {
+		//we got an error trying to read the config
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			//our error was a ConfigFileNotFound error. Lets try to create it
+			if emptyFile, err := os.Create(home + "/.helpernodectl.yaml"); err != nil {
+				//we could not create the file. Lets log that but keep going using defaults
+				logrus.Debug("Could not create $HOME/.helpernodectl.yaml file. Using defaults")
+			} else {
+				logrus.Debug("Created file $HOME/.helpernodectl.yaml")
+				emptyFile.Close()
+			}
+		} else {
+			//we could not read the file but it wasn't a ConfigNotFound error
+			logrus.Debugf("We got the following error trying to read in file %s", err)
+		}
+	} else {
+		//we read in the file...do we need to do anything else?
+		logrus.Debug("Using file located at $HOME/.helpernodectl.yaml")
+	}
+
+	if err := helpernodectlConfig.WriteConfig(); err != nil {
+		logrus.Error("Error writing config file")
+	} else {
+		logrus.Trace("Writing to: $HOME/.helpernodectl.yaml")
+	}
+}
+func setupHelperConfig(){
+	//steps that need to happen
+	//if passed via command line use it
+	//if not use what is defined in ~/.helpernodectl.yaml "configFile" field
+	//    would need to test if it exists
 	if cfgFile != "" {
 		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
+		helperConfig.SetConfigFile(cfgFile)
+		logrus.Debugf("Using --config file:" + cfgFile)
 	} else {
+		//TODO this will change to read from helpernodectl viper configuration
 		// Find home directory.
 		home, err := homedir.Dir()
 		if err != nil {
@@ -65,16 +124,21 @@ func initConfig() {
 		}
 
 		// Search config in home directory with name ".helpernodectl" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".helpernodectl")
+		helperConfig.AddConfigPath(home)
+		helperConfig.SetConfigName(".helper")
+		helperConfig.SetConfigType("yaml")
 	}
-
-	createImageList()
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		logrus.Trace("Using config file:", viper.ConfigFileUsed())
+	if err := helperConfig.ReadInConfig(); err != nil {
+		//we got an error trying to read the config
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			//our error was a ConfigFileNotFound error. Lets try to create it
+			logrus.Fatal("Could not find the configuration file")
+		} else {
+			//we could not read the file but it wasn't a ConfigNotFound error
+			logrus.Debugf("We got the following error trying to read in file %s", err)
+		}
 	}
-	setDefaults()
+	logrus.Debug("Reading configuraiton file")
 }
 
 func setUpLogging() {
@@ -87,49 +151,20 @@ func setUpLogging() {
 	//	logrus.SetReportCaller(true)
 }
 
-//This takes what was passed as --config and writes it to $HOME/.helpernodectl.yaml
-func setDefaults() {
-	home, err := homedir.Dir()
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	viper.AddConfigPath(home)
-	viper.SetConfigName(".helpernodectl")
-	viper.SetConfigType("yaml")
-	//TODO figure out if we want to set defaults here
-
-	//Touch the file in case it doesn't exist
-	//TODO figure out a better way to do this
-	emptyFile, err := os.Create(home + "/.helpernodectl.yaml")
-	if err != nil {
-		log.Fatal(err)
-	}
-	emptyFile.Close()
-
-	testFunc()
-
-	err = viper.WriteConfig()
-	if err != nil {
-		logrus.Error("Error writing config file")
-	} else {
-		logrus.Trace("Writing to:" + viper.ConfigFileUsed())
-	}
-}
 func createImageList() {
-	viper.SetEnvPrefix("helpernode")
-	viper.BindEnv("image_prefix")
-	if viper.GetString("image_prefix") == "" {
-		logrus.Debug("HELPERNODE_IMAGE_PREFIX not found. using quay.io")
-		viper.Set("image_prefix", "quay.io")
+	//TODO probably move this to setupCtlConfig
+	helpernodectlConfig.SetEnvPrefix("helpernode")
+	helpernodectlConfig.BindEnv("image_prefix")
+	if helpernodectlConfig.GetString("image_prefix") == "" {
+		logrus.Debug("HELPERNODE_IMAGE_PREFIX not found")
+		helpernodectlConfig.Set("image_prefix", "quay.io")
 	} else {
-		logrus.Debug("here")
+		logrus.Debug("Using quay.io as the registry")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	helpernodectlConfig.AutomaticEnv() // read in environment variables that match
 
-	registry = viper.GetString("image_prefix")
+	registry = helpernodectlConfig.GetString("image_prefix")
 
 	for _, name := range coreImageNames {
 		images[name] = registry + "/" + repository + "/" + name
@@ -145,20 +180,3 @@ func createImageList() {
 	}
 }
 
-func testFunc(){
-	var bootstrap = map[string]string{"disk": "vda", "ipaddr": "192.168.7.22", "macaddr": "52:54:00:60:72:67", "name": "bootstrap"}
-	var test Bootstrap
-	viper.SetDefault("version", "2")
-	viper.SetDefault("arch", "x86_64")
-	viper.SetDefault("bootstrap", bootstrap)
-	viper.SetDefault("test", test.name)
-
-//		viper.Set("level1", map[string][]string{"test1": {"test1", "test2"}})
-//	viper.Set("level1.level2", map[string]string{"test2": "test2"} )
-
-
-}
-
-type Bootstrap struct {
-	 name string `default:"geek"`
-}

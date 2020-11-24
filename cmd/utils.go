@@ -16,19 +16,6 @@ type Config struct {
 	Services []string `yaml:"disableservice"`
 }
 
-/*
-//going to covert this to use the podman module in the future
-func PullImage(image string, version string) {
-
-	fmt.Println("Pulling: " + image)
-	cmd, err := exec.Command(containerRuntime, "pull", image+":"+version).Output()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error running command %s: %s\n", cmd, err)
-		os.Exit(253)
-	}
-
-}
-*/
 // Find takes a slice and looks for an element in it. If found it will
 // return it's key, otherwise it will return -1 and a bool of false.
 func find(slice []string, val string) (int, bool) {
@@ -40,30 +27,6 @@ func find(slice []string, val string) (int, bool) {
 	return -1, false
 }
 
-/*TODO need to remove this after testing
-//going to covert this to use the podman module in the future
-func StartImage(image string, version string, encodedyaml string, containername string) {
-
-	fmt.Println("Running: " + image)
-	cmd, err := exec.Command(containerRuntime, "run", "--rm", "-d", "--env=HELPERPOD_CONFIG_YAML="+encodedyaml, "--net=host", "--name=helpernode-"+containername, image+":"+version).Output()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error running command %s: %s\n", cmd, err)
-		os.Exit(253)
-	}
-
-}
-
-//going to covert this to use the podman module in the future
-func StopImage(containername string) {
-
-	fmt.Println("Stopping: helpernode-" + containername)
-	// First, stop container
-	exec.Command(containerRuntime, "stop", "helpernode-"+containername).Output()
-	// Then, rm the container so we can reuse the name afterwards
-	exec.Command(containerRuntime, "rm", "--force", "helpernode-"+containername).Output()
-}
-
-*/
 
 // checking if service is running
 func isServiceRunning(servicename string) bool {
@@ -237,10 +200,7 @@ func openPort(port string) {
 func verifyContainerRuntime() {
 	_, err := exec.LookPath("podman")
 	if err != nil {
-		fmt.Println("Podman not found, Please install")
-		//TODO figure out if we really want to exit
-		os.Exit(9)
-
+		logrus.Fatal("Podman not found. Please install")
 	}
 
 }
@@ -258,6 +218,7 @@ func verifyFirewallCommand() {
 //defaults to all images unless specifically
 func reconcileImageList(list []string) {
 
+	//TODO change this to read from helpernodectl viper configuration
 	disabledServices := viper.GetStringSlice("disabledServices")
 
 	//all is implied so need to remove disabledServices
@@ -274,21 +235,14 @@ func reconcileImageList(list []string) {
 			subsetOfServices[name] = images[name]
 		}
 		images = subsetOfServices
-		/*	for name, image := range images {
-			logrus.Debug("Checking " + name + ":" + image)
-			if _, exists := images[name]; !exists {
-				logrus.Debug("Deleting name: " + name + "from list")
-				delete(images, images[name])
-			}
-		}*/
+
 		if logrus.GetLevel().String() == "debug" {
 			for name, image := range subsetOfServices {
 				logrus.Debug("Subset: " + name + ":" + image)
 			}
 		}
 	}
-	//TODO
-	//add plugable images
+	//TODO add plugable images
 }
 
 func getEncodedConfuration() string {

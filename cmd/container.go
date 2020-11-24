@@ -29,7 +29,6 @@ func runCmd(cmd *exec.Cmd) {
 func pullImage(image string, version string) {
 
 	fmt.Println("Pulling: " + image + ":" + version)
-	//TODO Need to write the output for the image pull
 	cmd := exec.Command(containerRuntime, "pull", image+":"+version)
 	runCmd(cmd)
 }
@@ -55,7 +54,6 @@ func stopImage(containername string) {
 }
 
 //check if an image is running. Return true if it is
-//TODO see if we can do this with a --filter to get it to 1 result back. This implies building the iamge with some LABEL commands
 func isImageRunning(containername string) bool {
 	out, err := exec.Command("podman", "ps", "--format", "{{.Names}}", "--filter=label="+containername+"="+VERSION).Output()
 	name := strings.TrimSuffix(string(out), "\n")
