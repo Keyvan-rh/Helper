@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -38,7 +37,7 @@ var installCmd = &cobra.Command{
 		}else{
 			logrus.Info("config file was not passed")
 		}*/
-		fmt.Println("called install")
+		logrus.Info("called install")
 		if logrus.GetLevel().String() == "debug" {
 			for _,name := range imageList {
 				logrus.Debug("Starting: " + name)

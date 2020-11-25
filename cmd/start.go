@@ -45,6 +45,9 @@ up successfully.`,
 			preflightCmd.Run(cmd, []string{})
 			logrus.Info("Starting Containers\n======================\n")
 		}
+		if pull, _ := cmd.Flags().GetBool("pull"); pull {
+			pullCmd.Run(cmd, []string{})
+		}
 		runContainers()
 	},
 }
@@ -52,7 +55,9 @@ up successfully.`,
 func init() {
 	rootCmd.AddCommand(startCmd)
 	startCmd.Flags().BoolP("skip-preflight", "s", false, "Skips preflight checks and tries to start the containers")
-	//TODO add --pull
+	//TODO right now this will ALL images.
+	// Need to update to only whats in comma separated list if that is passed
+	startCmd.Flags().BoolP("pull", "p", false, "pull all images before start. ")
 	//TODO add --disable?
 
 }

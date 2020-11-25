@@ -116,10 +116,11 @@ func setupHelperConfig(){
 	if cfgFile != "" {
 		// Use config file from the flag.
 		helperConfig.SetConfigFile(cfgFile)
-		logrus.Debugf("Using --config file:" + cfgFile)
+		logrus.Info("Using --config file:" + cfgFile)
 	} else {
 		//TODO this will change to read from helpernodectl viper configuration
 		// Find home directory.
+		logrus.Info("Using saved configuration in ~/.helper.yaml")
 		home, err := homedir.Dir()
 		if err != nil {
 			fmt.Println(err)

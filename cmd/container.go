@@ -63,7 +63,6 @@ func isImageRunning(containername string) bool {
 		logrus.Debug(err)
 	} else {
 		if name == containername {
-			logrus.Debugf("Found %s to stop", name)
 			return true
 		}
 	}

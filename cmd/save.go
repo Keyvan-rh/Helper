@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -32,8 +31,7 @@ var saveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			logrus.Fatal(err)
 		}
 		helpernodectlConfig.Set("configFile", home + "/.helper.yaml")
 		helpernodectlConfig.WriteConfig()
@@ -60,7 +58,7 @@ var saveCmd = &cobra.Command{
 		} else {
 			logrus.Trace("Writing to: $HOME/.helper.yaml")
 		}
-		logrus.Debug("Saving config file")
+		logrus.Info("Saving " + file + " to ~/.helper.yaml")
 
 
 

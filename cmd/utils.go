@@ -295,7 +295,7 @@ func validateArgs(args []string) {
 }
 func verifyConfig(){
 	if !helpernodectlConfig.IsSet("configFile") &&  !rootCmd.PersistentFlags().Changed("config")  {
-		logrus.Fatal("Config file was not passed or has a previous save")
+		logrus.Fatal("Config file was not passed or has no previous save")
 	}else{
 		logrus.Info("Found a configuration")
 	}
