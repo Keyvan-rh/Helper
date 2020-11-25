@@ -52,6 +52,8 @@ up successfully.`,
 func init() {
 	rootCmd.AddCommand(startCmd)
 	startCmd.Flags().BoolP("skip-preflight", "s", false, "Skips preflight checks and tries to start the containers")
+	//TODO add --pull
+	//TODO add --disable?
 
 }
 
@@ -66,7 +68,7 @@ func runContainers() {
 		if isImageRunning("helpernode-" + name) {
 			logrus.Info("SKIPPING: Container helpernode-" + name + " already running.")
 		} else {
-			startImage(image, "latest", getEncodedConfuration(), name)
+			startImage(image, VERSION, getEncodedConfuration(), name)
 		}
 	}
 }

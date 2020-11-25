@@ -1,7 +1,7 @@
 package cmd
 
 //TODO finalize version
-const VERSION string = "4.6"
+const VERSION string = "latest"
 
 var coreImageNames = []string{"dns", "dhcp", "http", "loadbalancer","pxe"}
 var containerRuntime string = "podman"

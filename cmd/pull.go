@@ -39,6 +39,6 @@ func init() {
 func pullImages() {
 	for _, image := range coreImages {
 		//TODO need to update this to version aftertesting
-			pullImage(image, "latest")
+			pullImage(image, VERSION)
 	}
 }

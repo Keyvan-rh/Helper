@@ -50,6 +50,8 @@ func init() {
 		verifyContainerRuntime()
 		verifyFirewallCommand()
 	}
+	//TODO lets move --config to subcommands that need it. that way we can set it required or not.
+	// Need it in start and pull
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.helpernodectl.yaml)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info", "log level (e.g. \"debug | info | warn | error\")")
 
@@ -62,6 +64,7 @@ func initConfig() {
 	setupCtlConfig()
 	setupHelperConfig()
 	createImageList()
+	//TODO addDefaults()?
 
 }
 
@@ -138,7 +141,7 @@ func setupHelperConfig(){
 			logrus.Debugf("We got the following error trying to read in file %s", err)
 		}
 	}
-	logrus.Debug("Reading configuraiton file")
+	logrus.Debug("Reading configuration file")
 }
 
 func setUpLogging() {

@@ -248,10 +248,10 @@ func reconcileImageList(list []string) {
 //TODO need to update this to use helperconfig
 func getEncodedConfuration() string {
 	// Check to see if file exists
-	logrus.Trace("Config file used: " + viper.ConfigFileUsed())
+	logrus.Trace("Config file used: " + helperConfig.ConfigFileUsed())
 	var encoded string
-	configurationFile := viper.ConfigFileUsed()
-	if _, err := os.Stat(viper.ConfigFileUsed()); os.IsNotExist(err) {
+	configurationFile := helperConfig.ConfigFileUsed()
+	if _, err := os.Stat(helperConfig.ConfigFileUsed()); os.IsNotExist(err) {
 		fmt.Println("File " + configurationFile + " does not exist")
 	} else {
 		// Open file on disk
