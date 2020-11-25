@@ -39,7 +39,6 @@ func init() {
 }
 
 func stopContainers() {
-	verifyConfig()
 	reconcileImageList(imageList)
 	for name, _ := range images {
 		if !isImageRunning("helpernode-" + name) {
