@@ -1,14 +1,13 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-	"net"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"net"
 )
 
 // preflight error counter
-var PreflightErrorCount int = 0
+var preflightErrorCount int = 0
 
 // preflightCmd represents the preflight command
 var preflightCmd = &cobra.Command{
@@ -26,24 +25,27 @@ This checks for port conflicts, systemd conflicts, and also checks any
 firewall rules. It will optionally fix systemd and firewall rules by
 passing the --fix-all option (EXPERIMENTAL).`,
 	Run: func(cmd *cobra.Command, args []string) {
+
 		fixall, _ := cmd.Flags().GetBool("fix-all")
-		if fixall {
-			fmt.Printf("Checking for conflicts\nBEST EFFORT IN FIXING ERRORS\n============================\n")
-			systemdCheck(true)
-			portCheck()
-			firewallRulesCheck(true)
-			if PreflightErrorCount != 0 {
-				os.Exit(10)
-			}
-		} else {
-			fmt.Printf("Checking for conflicts\n======================\n")
-			systemdCheck(false)
-			portCheck()
-			firewallRulesCheck(false)
-			if PreflightErrorCount != 0 {
-				os.Exit(10)
-			}
+		logrus.Info("RUNNING PREFLIGHT TASKS")
+		if(fixall) {
+			logrus.Info("==========================BESTEFFORT IN FIXING ERRORS============================\n")
 		}
+		//fix-all defaults to false unless passed on the command line
+//		systemdCheck(fixall)
+//		portCheck()
+//		firewallRulesCheck(fixall)
+
+
+		logrus.WithFields(logrus.Fields{
+			"FWRules":firewallRulesCheck(fixall),
+			"PortCheck":portCheck(),
+			"SystemdCheck":systemdCheck(fixall),
+		}).Info("Preflight Summary")
+		if preflightErrorCount == 0 {
+			logrus.Infof("No preflight errors found")
+		}
+
 	},
 }
 
@@ -51,18 +53,10 @@ func init() {
 	rootCmd.AddCommand(preflightCmd)
 	preflightCmd.Flags().BoolP("fix-all", "x", false, "Does the needful and fixes errors it finds - EXPERIMENTAL")
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// preflightCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// preflightCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func portCheck() {
+func portCheck() int {
+	logrus.Info("Starting Port Checks")
 	// set the error count to 0
 	porterrorcount := 0
 	// check each port
@@ -72,7 +66,9 @@ func portCheck() {
 
 		// If this returns an error, then something else is listening on this port
 		if err != nil {
-			fmt.Println("WARNING: Port tcp:" + p + " is in use")
+			if logrus.GetLevel().String() == "debug" {
+				logrus.Warnf("Port check  %s/tcp is in use", p)
+			}
 			porterrorcount += 1
 		} else {
 			t.Close()
@@ -83,7 +79,9 @@ func portCheck() {
 
 		// If this returns an error, then something else is listening on this port
 		if err != nil {
-			fmt.Println("WARNING: Port udp:" + p + " is in use")
+			if logrus.GetLevel().String() == "debug" {
+				logrus.Warnf("Port check %s/udp is in use", p)
+			}
 			porterrorcount += 1
 		} else {
 			u.Close()
@@ -92,43 +90,48 @@ func portCheck() {
 	}
 
 	// Display that no errors were found
-	if porterrorcount == 0 {
-		fmt.Println("No port confilcts were found")
-	} else {
-		PreflightErrorCount += 1
+	if porterrorcount > 0 {
+		preflightErrorCount += 1
 	}
+	logrus.WithFields(logrus.Fields{"Port Issues":porterrorcount,}).Info("Preflight checks for Ports")
+	return porterrorcount
 }
 
-func systemdCheck(fix bool) {
+func systemdCheck(fix bool) int {
 	// set the error count to 0
 	svcerrorcount := 0
+	logrus.Info("Starting Systemd Checks")
+
 	for _, s := range systemdsvc {
 		if isServiceRunning(s) {
-			fmt.Println("WARNING: Service " + s + " is running")
+			logrus.Debug("Service " + s + " is running")
 			svcerrorcount += 1
 			if fix {
-				fmt.Println("STOPPING/DISABLING SERVICE: " + s)
+				logrus.Info("STOPPING/DISABLING SERVICE: " + s)
 				stopService(s)
 				disableService(s)
 			}
 		}
 	}
 	// Display that no errors were found
-	if svcerrorcount == 0 {
-		fmt.Println("No service confilcts were found")
-	} else {
-		PreflightErrorCount += 1
+	if svcerrorcount > 0 {
+		preflightErrorCount += 1
 	}
+	logrus.WithFields(logrus.Fields{"Systemd Issues":svcerrorcount,}).Info("Preflight checks for Systemd")
+	return svcerrorcount
+
 }
 
-func firewallRulesCheck(fix bool) {
+func firewallRulesCheck(fix bool) int {
 	// set the error count to 0
 	fwerrorcount := 0
+	fwfixCount := 0
 
+	logrus.Info("Running firewall checks")
 	// Check if firewalld service is running
 	if !isServiceRunning("firewalld.service") {
-		fwerrorcount += 1
-		fmt.Println("WARNING: Service firewalld.service is NOT running")
+//		fwerrorcount += 1
+		logrus.Debug("Service firewalld.service is NOT running")
 		if fix {
 			startService("firewalld.service")
 			enableService("firewalld.service")
@@ -144,19 +147,28 @@ func firewallRulesCheck(fix bool) {
 	for _, f := range fwrule {
 		_, found := find(s, f)
 		if !found {
-			fmt.Println("Firewall rule " + f + " not found!")
+			if logrus.GetLevel().String() == "debug" {
+				//this is a bit weird but only want to log these in debug mode.
+				//BUT using WARN so they show up yellow
+				logrus.Warnf("Firewall rule %s not found", f)
+			}
 			fwerrorcount += 1
 			if fix {
-				fmt.Println("OPENING PORT: " + f)
+				logrus.Info("OPENING PORT: " + f)
 				openPort(f)
+				fwfixCount++
 			}
 		}
 	}
 
 	// Display that no errors were found
-	if fwerrorcount == 0 {
-		fmt.Println("No firewall issues were found")
-	} else {
-		PreflightErrorCount += 1
+	if fwerrorcount > 0 {
+		preflightErrorCount += 1
 	}
+	if fix {
+		logrus.WithFields(logrus.Fields{"Firewall Issues": fwerrorcount,"Firewall rules added":fwfixCount}).Info("Preflight checks for Firewall")
+	} else {
+		logrus.WithFields(logrus.Fields{"Firewall Issues": fwerrorcount,}).Info("Preflight checks for Firewall")
+	}
+	return fwerrorcount
 }

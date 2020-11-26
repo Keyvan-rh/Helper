@@ -58,14 +58,11 @@ func stopImage(containername string) {
 func isImageRunning(containername string) bool {
 	out, err := exec.Command("podman", "ps", "--format", "{{.Names}}", "--filter=label="+containername+"="+VERSION).Output()
 	name := strings.TrimSuffix(string(out), "\n")
-	logrus.Debugf("%s is running", name)
 	if err != nil {
 		logrus.Debug(err)
-	} else {
-		if name == containername {
-			return true
-		}
+	} else if name == containername {
+		logrus.Debugf("%s is running", name)
+		return true
 	}
-
-	return false
+		return false
 }

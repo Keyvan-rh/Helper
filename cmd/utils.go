@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"net"
 )
 
 type Config struct {
@@ -59,7 +60,7 @@ func stopService(servicename string) {
 
 	// stop the service only if it's running
 	if isServiceRunning(servicename) {
-		fmt.Println("Stopping service: " + servicename)
+		logrus.Info("Stopping service: " + servicename)
 		//Stop the service with systemd
 		cmd, err := exec.Command("systemctl", "stop", servicename).Output()
 		// Check to see if the stop was successful
@@ -75,7 +76,7 @@ func startService(servicename string) {
 
 	// start the service only if it isn't running
 	if !isServiceRunning(servicename) {
-		fmt.Println("Starting service: " + servicename)
+		logrus.Info("Starting service: " + servicename)
 		//Start the service with systemd
 		cmd, err := exec.Command("systemctl", "start", servicename).Output()
 		// Check to see if the start was successful
@@ -91,7 +92,7 @@ func disableService(servicename string) {
 
 	// Disable only if it needs to be
 	if isServiceEnabled(servicename) {
-		fmt.Println("Disabling service: " + servicename)
+		logrus.Info("Disabling service: " + servicename)
 		//Stop the service with systemd
 		cmd, err := exec.Command("systemctl", "disable", servicename).Output()
 		// Check to see if the stop was successful
@@ -107,7 +108,7 @@ func enableService(servicename string) {
 
 	// Enable only if it needs to be
 	if !isServiceEnabled(servicename) {
-		fmt.Println("Enabling service: " + servicename)
+		logrus.Info("Enabling service: " + servicename)
 		//enable the service with systemd
 		cmd, err := exec.Command("systemctl", "enable", servicename).Output()
 		// Check to see if the enable was successful
@@ -176,7 +177,7 @@ func getCurrentFirewallRules() []string {
 	return s
 }
 
-func openPort(port string) {
+func 	openPort(port string) {
 
 	// Open Ports using the port number
 	cmd, err := exec.Command("firewall-cmd", "--add-port", port, "--permanent", "-q").Output()
@@ -247,12 +248,16 @@ func reconcileImageList(list []string) {
 
 //TODO need to update this to use helperconfig
 func getEncodedConfuration() string {
+	//Not sure if this will stay here but lets do some validation on the configuration
+	if( !validateConfiguration() ){
+		logrus.Fatal("Error in configuration file!!!")
+	}
 	// Check to see if file exists
 	logrus.Trace("Config file used: " + helperConfig.ConfigFileUsed())
 	var encoded string
 	configurationFile := helperConfig.ConfigFileUsed()
 	if _, err := os.Stat(helperConfig.ConfigFileUsed()); os.IsNotExist(err) {
-		fmt.Println("File " + configurationFile + " does not exist")
+		logrus.Error("File " + configurationFile + " does not exist")
 	} else {
 		// Open file on disk
 		f, _ := os.Open(configurationFile)
@@ -264,6 +269,25 @@ func getEncodedConfuration() string {
 	}
 	return encoded
 }
+
+func validateConfiguration()  bool{
+	//initially lets check that the interface name matches something on this NIC
+	logrus.Infof("Validationg configuration in %s", helperConfig.ConfigFileUsed())
+	interfaces, _ := net.Interfaces()
+	found := false
+	configInterface := helperConfig.GetString("helper.networkifacename")
+	for _, ifc := range interfaces {
+		if ifc.Name == configInterface {
+			found = true
+			break
+		}
+	}
+	if(!found){
+		logrus.Errorf("Could not find %s in interface list of this machine", configInterface)
+	}
+	return found
+}
+
 func validateArgs(args []string) {
 	imageCount := len(args)
 
@@ -276,7 +300,7 @@ func validateArgs(args []string) {
 		logrus.Debug("starting: " + args[0])
 		//parse image list
 		imageList = strings.Split(args[0], ",")
-		fmt.Println(imageList)
+		logrus.Info(imageList)
 
 		//TODO make sure plugable images is added to images var
 		//Lets make sure its in our list of images (should include pluggable images)

@@ -31,7 +31,7 @@ var ports = [10]string{
 //TODO Add disconnected
 //TODO Add an image struct later...too many code changes for it now
 var images = make(map[string]string)
-
+//TODO lets build something that builds the image list. should have add/remove functions
 var coreImages =  map[string]string{
 	"dns": "quay.io/helpernode/dns",
 	"dhcp": "quay.io/helpernode/dhcp",

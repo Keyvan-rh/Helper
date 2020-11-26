@@ -6,6 +6,10 @@ import (
 
 // pullCmd represents the pull command
 var pullCmd = &cobra.Command{
+	Args: func(cmd *cobra.Command, args []string) error {
+		validateArgs(args)
+		return nil
+	},
 	Use:   "pull",
 	Short: "Pulls images into your node",
 	Long: `This will pull the  core helpernode images onto your local host. These images are used to
@@ -23,21 +27,12 @@ quay.io/helpernode/dhcp`,
 
 func init() {
 	rootCmd.AddCommand(pullCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// pullCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// pullCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // Loop through images and pull them
 func pullImages() {
-	for _, image := range coreImages {
+	reconcileImageList(imageList)
+	for _, image := range images {
 		//TODO need to update this to version aftertesting
 			pullImage(image, VERSION)
 	}

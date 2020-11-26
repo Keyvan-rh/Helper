@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -120,11 +119,10 @@ func setupHelperConfig(){
 	} else {
 		//TODO this will change to read from helpernodectl viper configuration
 		// Find home directory.
-		logrus.Info("Using saved configuration in ~/.helper.yaml")
+		logrus.Info("Found saved configuration in ~/.helper.yaml")
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			logrus.Fatal(err)
 		}
 
 		// Search config in home directory with name ".helpernodectl" (without extension).
@@ -146,6 +144,7 @@ func setupHelperConfig(){
 }
 
 func setUpLogging() {
+	//TODO set up something to read log-level from .helpernodectl.yaml
 	logrus.SetOutput(os.Stdout)
 	level, err := logrus.ParseLevel(logLevel)
 	if err != nil {
