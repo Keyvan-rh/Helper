@@ -44,6 +44,10 @@ passing the --fix-all option (EXPERIMENTAL).`,
 		}).Info("Preflight Summary")
 		if preflightErrorCount == 0 {
 			logrus.Infof("No preflight errors found")
+		} else {
+			if !fixall {
+				logrus.Fatal("Cannot Start, preflight errors found")
+			}
 		}
 
 	},
