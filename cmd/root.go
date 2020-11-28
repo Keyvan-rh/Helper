@@ -119,7 +119,9 @@ func setupHelperConfig(){
 	} else {
 		//TODO this will change to read from helpernodectl viper configuration
 		// Find home directory.
+		/* CH comment out for now
 		logrus.Info("Found saved configuration in ~/.helper.yaml")
+		*/
 		home, err := homedir.Dir()
 		if err != nil {
 			logrus.Fatal(err)
