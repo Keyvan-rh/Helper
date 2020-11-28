@@ -5,7 +5,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	/* Robert says no
 	"github.com/spf13/viper"
+	*/
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -220,7 +222,10 @@ func verifyFirewallCommand() {
 func reconcileImageList(list []string) {
 
 	//TODO change this to read from helpernodectl viper configuration
+	/* Robert told me to do it this way
 	disabledServices := viper.GetStringSlice("disabledServices")
+	*/
+	disabledServices := helperConfig.GetStringSlice("disabledServices")
 
 	//all is implied so need to remove disabledServices
 	if list[0] == "all" {
