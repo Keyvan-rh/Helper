@@ -29,7 +29,7 @@ COPY scripts/simpleEcho.sh /usr/local/bin/
 #    wget ${OCPCLIENTURL}/openshift-install-linux-${OCPVERSION}.tar.gz -O /var/www/html/artifacts/openshift-install-linux.tar.gz && \
 #    chmod 0555 /var/www/html/install/rootfs.img && \
 #    chmod 0775 /var/www/html/artifacts/*
-
+RUN  chmod 0775 /usr/local/bin/simpleEcho.sh
 
 EXPOSE 8080/tcp 8080/udp
 
