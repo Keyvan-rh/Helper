@@ -11,7 +11,10 @@ ENV HELPERPOD_HTTP_PORT="8080"
 ENV HELMVERSION="3.4.0"
 
 RUN dnf -y install httpd jq wget python3-pip && \
-    yum install ansible && \
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python get-pip.py --user && \
+    python -m pip install --user ansible && \
+#    pip install ansible && \
     mkdir -m 775 -p /var/www/html/{install,ignition,artifacts}
 
 COPY files/httpd.conf.j2 /usr/local/src/
