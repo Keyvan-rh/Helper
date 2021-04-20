@@ -10,7 +10,7 @@ ENV HELPERPOD_HTTP_PORT="8080"
 
 ENV HELMVERSION="3.4.0"
 
-RUN dnf -y install httpd jq wget python3-pip && \
+RUN dnf -y install httpd jq wget python3-pip python && \
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
     python get-pip.py --user && \
     python -m pip install --user ansible && \
