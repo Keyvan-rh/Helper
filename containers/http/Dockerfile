@@ -17,6 +17,9 @@ RUN dnf -y install httpd jq wget python38-pip && \
 COPY files/httpd.conf.j2 /usr/local/src/
 
 #COPY scripts/startup.sh /usr/local/bin/
+COPY scripts/simpleEcho.sh /usr/local/bin/
+
+
 
 #RUN export OCPRHCOSURL="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCPVERSION%.*}/${OCPRHCOSVERSION}" && \
 #    wget ${OCPRHCOSURL}/rhcos-${OCPRHCOSVERSION}-x86_64-live-rootfs.x86_64.img -O /var/www/html/install/rootfs.img && \
@@ -31,3 +34,5 @@ COPY files/httpd.conf.j2 /usr/local/src/
 EXPOSE 8080/tcp 8080/udp
 
 #ENTRYPOINT ["/usr/local/bin/startup.sh"]
+ENTRYPOINT ["/usr/local/bin/simpleEcho.sh"]
+
