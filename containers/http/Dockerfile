@@ -11,21 +11,21 @@ ENV HELPERPOD_HTTP_PORT="8080"
 ENV HELMVERSION="3.4.0"
 
 RUN dnf -y install httpd jq wget python3-pip && \
-    pip3 install ansible && \
+    dnf -y install ansible && \
     mkdir -m 775 -p /var/www/html/{install,ignition,artifacts}
 
 COPY files/httpd.conf.j2 /usr/local/src/
 
 COPY scripts/startup.sh /usr/local/bin/
 
-RUN export OCPRHCOSURL="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCPVERSION%.*}/${OCPRHCOSVERSION}" && \
-    wget ${OCPRHCOSURL}/rhcos-${OCPRHCOSVERSION}-x86_64-live-rootfs.x86_64.img -O /var/www/html/install/rootfs.img && \
-    wget https://get.helm.sh/helm-v${HELMVERSION}-linux-amd64.tar.gz -O /var/www/html/artifacts/helm.tar.gz && \
-    export OCPCLIENTURL="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCPVERSION}" && \
-    wget ${OCPCLIENTURL}/openshift-client-linux-${OCPVERSION}.tar.gz -O /var/www/html/artifacts/openshift-client-linux.tar.gz && \
-    wget ${OCPCLIENTURL}/openshift-install-linux-${OCPVERSION}.tar.gz -O /var/www/html/artifacts/openshift-install-linux.tar.gz && \
-    chmod 0555 /var/www/html/install/rootfs.img && \
-    chmod 0775 /var/www/html/artifacts/*
+#RUN export OCPRHCOSURL="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCPVERSION%.*}/${OCPRHCOSVERSION}" && \
+#    wget ${OCPRHCOSURL}/rhcos-${OCPRHCOSVERSION}-x86_64-live-rootfs.x86_64.img -O /var/www/html/install/rootfs.img && \
+#    wget https://get.helm.sh/helm-v${HELMVERSION}-linux-amd64.tar.gz -O /var/www/html/artifacts/helm.tar.gz && \
+#    export OCPCLIENTURL="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCPVERSION}" && \
+#    wget ${OCPCLIENTURL}/openshift-client-linux-${OCPVERSION}.tar.gz -O /var/www/html/artifacts/openshift-client-linux.tar.gz && \
+#    wget ${OCPCLIENTURL}/openshift-install-linux-${OCPVERSION}.tar.gz -O /var/www/html/artifacts/openshift-install-linux.tar.gz && \
+#    chmod 0555 /var/www/html/install/rootfs.img && \
+#    chmod 0775 /var/www/html/artifacts/*
 
 
 EXPOSE 8080/tcp 8080/udp
